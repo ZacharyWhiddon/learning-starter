@@ -3,6 +3,7 @@ using LearningStarterServer.Data;
 using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace LearningStarterServer.Controllers
 {
@@ -16,6 +17,14 @@ namespace LearningStarterServer.Controllers
         public UsersController(DataContext context)
         {
             _context = context;
+        }
+
+        [HttpGet("get-all")]
+        public IActionResult GetAll()
+        {
+            var response = new Response();
+            response.Data = _context.Users.ToList();
+            return Ok(response);
         }
 
         [HttpPost]
