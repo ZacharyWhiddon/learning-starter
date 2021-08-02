@@ -11,38 +11,35 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace LearningStarterServer.Services
 {
-    public interface IUserService
+    public interface IAuthenticationService
     {
-        AuthenticateResponse Authenticate(AuthenticateRequest model);
-        IEnumerable<User> GetAll();
-        User GetById(int id);
+        AuthenticateResponse Login(AuthenticateRequest model);
+        void Logout();
         bool IsUserLoggedIn();
-        User GetLoggedInUser();
     }
 
-    public class UserService : IUserService
+    public class AuthenticationService : IAuthenticationService
     {
         // users hardcoded for simplicity, store in a db with hashed passwords in production applications
         private List<User> _users = new List<User>
         {
-            new User { Id = 1, FirstName = "Test", LastName = "User", Username = "test", Password = "test" }
+            new User {Id = 1, FirstName = "Test", LastName = "User", Username = "test", Password = "test"}
         };
 
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly AppSettings _appSettings;
 
-        public UserService(
-            IOptions<AppSettings> appSettings,
+        public AuthenticationService(
             IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _appSettings = appSettings.Value;
         }
 
-        public AuthenticateResponse Authenticate(AuthenticateRequest model)
+        public AuthenticateResponse Login(AuthenticateRequest model)
         {
             var user = _users.SingleOrDefault(x => x.Username == model.Username && x.Password == model.Password);
 
@@ -50,9 +47,14 @@ namespace LearningStarterServer.Services
             if (user == null) return null;
 
             // authentication successful so generate jwt token
-            var token = GenerateJwtToken(user);
+            SignInUser(user);
 
-            return new AuthenticateResponse(user, token);
+            return new AuthenticateResponse(user);
+        }
+
+        public async void Logout()
+        {
+            await _httpContextAccessor.HttpContext.SignOutAsync();
         }
 
         public bool IsUserLoggedIn()
@@ -69,7 +71,7 @@ namespace LearningStarterServer.Services
                 return null;
             }
 
-            return (User)_httpContextAccessor.HttpContext.Items[Constants.HttpContext.Items.User];
+            return (User) _httpContextAccessor.HttpContext.Items[Constants.HttpContext.Items.User];
         }
 
         public IEnumerable<User> GetAll()
@@ -84,19 +86,19 @@ namespace LearningStarterServer.Services
 
         // helper methods
 
-        private string GenerateJwtToken(User user)
+        private async void SignInUser(User user)
         {
-            // generate token that is valid for 7 days
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var claims = new List<Claim>();
+
+            var claimsIdentity = new ClaimsIdentity(
+                claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            var authProperties = new AuthenticationProperties();
+
+            await _httpContextAccessor.HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using LearningStarterServer.Models;
 using LearningStarterServer.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LearningStarterServer.Controllers
@@ -8,9 +9,9 @@ namespace LearningStarterServer.Controllers
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IAuthenticationService _userService;
 
-        public UsersController(IUserService userService)
+        public UsersController(IAuthenticationService userService)
         {
             _userService = userService;
         }
@@ -18,7 +19,7 @@ namespace LearningStarterServer.Controllers
         [HttpPost("authenticate")]
         public IActionResult Authenticate(AuthenticateRequest model)
         {
-            var response = _userService.Authenticate(model);
+            var response = _userService.Login(model);
 
             if (response == null)
             {
@@ -28,12 +29,18 @@ namespace LearningStarterServer.Controllers
             return Ok(response);
         }
 
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            _userService.Logout();
+            return Ok();
+        }
+
         [Authorize]
         [HttpGet]
-        public IActionResult GetAll()
+        public IActionResult test()
         {
-            var users = _userService.GetAll();
-            return Ok(users);
+            return Ok("test");
         }
     }
 }
