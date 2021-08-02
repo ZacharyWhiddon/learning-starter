@@ -1,10 +1,12 @@
+using System.Linq;
 using System.Threading.Tasks;
-using LearningStarterServer.Helpers;
+using LearningStarterServer.Data;
 using LearningStarterServer.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -26,8 +28,10 @@ namespace LearningStarterServer
             services.AddCors();
             services.AddControllers();
 
-            // configure strongly typed settings object
-            services.Configure<AppSettings>(Configuration.GetSection("AppSettings"));
+            services.AddDbContext<DataContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
 
             services
                 .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -61,7 +65,7 @@ namespace LearningStarterServer
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataContext dataContext)
         {
             app.UseCookiePolicy();
             app.UseRouting();
@@ -89,6 +93,22 @@ namespace LearningStarterServer
             app.UseAuthorization();
 
             app.UseEndpoints(x => x.MapControllers());
+
+            dataContext.Database.Migrate();
+
+            var numUsers = dataContext.Users.Count();
+
+            if(numUsers == 0)
+            {
+                dataContext.Users.Add(new Entities.User
+                {
+                    FirstName = "Seeded",
+                    LastName = "User",
+                    Username = "admin",
+                    Password = "password"
+                });
+                dataContext.SaveChanges();
+            }
         }
     }
 }

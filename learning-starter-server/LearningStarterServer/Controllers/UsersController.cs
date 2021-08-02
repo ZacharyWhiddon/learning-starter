@@ -1,46 +1,148 @@
-﻿using LearningStarterServer.Models;
-using LearningStarterServer.Services;
+﻿using LearningStarterServer.Common;
+using LearningStarterServer.Data;
+using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LearningStarterServer.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly IAuthenticationService _userService;
+        private readonly DataContext _context;
 
-        public UsersController(IAuthenticationService userService)
+        public UsersController(DataContext context)
         {
-            _userService = userService;
+            _context = context;
         }
 
-        [HttpPost("authenticate")]
-        public IActionResult Authenticate(AuthenticateRequest model)
+        [HttpPost]
+        public IActionResult Create(User user)
         {
-            var response = _userService.Login(model);
+            var response = new Response();
 
-            if (response == null)
+            if (user.FirstName == null || user.FirstName == "")
             {
-                return BadRequest(new { message = "Username or password is incorrect" });
+                response.AddError("First Name", "First name cannot be empty.");
             }
+
+            if (user.LastName == null || user.LastName == "")
+            {
+                response.AddError("Last Name", "Last name cannot be empty.");
+            }
+
+            if (user.Username == null || user.Username == "")
+            {
+                response.AddError("User Name", "User name cannot be empty.");
+            }
+
+            if (user.Password == null || user.Password == "")
+            {
+                response.AddError("Password", "Password cannot be empty.");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+
+            response.Data = user;
+
+            return Created("", response);
+        }
+
+        [HttpGet]
+        public IActionResult Details(int id)
+        {
+            var response = new Response();
+
+            var user = _context.Users.Find(id);
+
+            if(user == null)
+            {
+                response.AddError("id", "There was a problem finding the user.");
+                return NotFound(response);
+            }
+
+            response.Data = user;
 
             return Ok(response);
         }
 
-        [HttpPost("logout")]
-        public IActionResult Logout()
+        [HttpPut]
+        public IActionResult Edit(int id, User user)
         {
-            _userService.Logout();
-            return Ok();
+            var response = new Response();
+
+            var userToEdit = _context.Users.Find(id);
+
+            if (user == null)
+            {
+                response.AddError("id", "There was a problem deleting the user.");
+                return NotFound(response);
+            }
+
+            if (user.FirstName == null || user.FirstName == "")
+            {
+                response.AddError("First Name", "First name cannot be empty.");
+            }
+
+            if (user.LastName == null || user.LastName == "")
+            {
+                response.AddError("Last Name", "Last name cannot be empty.");
+            }
+
+            if (user.Username == null || user.Username == "")
+            {
+                response.AddError("User Name", "User name cannot be empty.");
+            }
+
+            if (user.Password == null || user.Password == "")
+            {
+                response.AddError("Password", "Password cannot be empty.");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
+
+            userToEdit.FirstName = user.FirstName;
+            userToEdit.LastName = user.LastName;
+            userToEdit.Username = user.Username;
+            userToEdit.Password = user.Password;
+
+            _context.SaveChanges();
+
+            response.Data = userToEdit;
+
+            return Ok(response);
         }
 
-        [Authorize]
-        [HttpGet]
-        public IActionResult test()
+        [HttpDelete]
+        public IActionResult Delete(int id)
         {
-            return Ok("test");
+            var response = new Response();
+
+            var user = _context.Users.Find(id);
+
+            if (user == null)
+            {
+                response.AddError("id", "There was a problem deleting the user.");
+                return NotFound(response);
+            }
+
+            _context.Users.Remove(user);
+            _context.SaveChanges();
+
+            response.Data = true;
+
+            return Ok(response);
         }
     }
 }
