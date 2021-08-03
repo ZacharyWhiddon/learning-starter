@@ -1,24 +1,34 @@
 import React from "react";
-import logo from "./logo.svg";
 import "./App.css";
+import { Card } from "semantic-ui-react";
+
+const items = [
+  {
+    header: 'Project Report - April',
+    description:
+      'Leverage agile frameworks to provide a robust synopsis for high level overviews.',
+    meta: 'ROI: 30%',
+  },
+  {
+    header: 'Project Report - May',
+    description:
+      'Bring to the table win-win survival strategies to ensure proactive domination.',
+    meta: 'ROI: 34%',
+  },
+  {
+    header: 'Project Report - June',
+    description:
+      'Capitalise on low hanging fruit to identify a ballpark value added activity to beta test.',
+    meta: 'ROI: 27%',
+  },
+]
+
+const CardExampleGroupProps = () => <Card.Group items={items} />
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <CardExampleGroupProps/>
     </div>
   );
 }

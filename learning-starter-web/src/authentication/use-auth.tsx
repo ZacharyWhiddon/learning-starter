@@ -1,36 +1,53 @@
-import React, { createContext, useContext, useEffect, useReducer } from "react";
+import React, { createContext, Reducer, useContext, useEffect, useReducer } from "react";
 import produce from "immer";
 import { Dimmer, Loader } from "semantic-ui-react";
 import { useSubscription } from "../hooks/use-subscription";
 import { Env } from "../config/env-vars";
+import { authenticationService } from "./authentication-services";
 
 export type User = {
   firstName: string;
   lastName: string;
 };
 
+// type Actions = "ON_USER_LOADED" | "ON_USER_UNLOADED";
+// type LiteralKeyedObject<K extends string, V> = { [key in K]: V };
+// type Handlers = LiteralKeyedObject<Actions, Handler>;
+
+// type Action = {
+  //   type: Actions;
+  //   payload?: any;
+  // };
+
+enum ActionTypes {
+  ON_USER_LOADED = "ON_USER_LOADED",
+  ON_USER_UNLOADED = "ON_USER_UNLOADED",
+  REDIRECTING = "REDIRECTING"
+}
+
 type AuthState = {
   pending: boolean;
   user: User | null;
   error: Error | null;
-  redirectUrl?: string;
+  redirectUrl?: string | null;
 };
 
-type Actions = "ON_USER_LOADED" | "ON_USER_UNLOADED";
+type AuthAction = {
+  type: ActionTypes
+  payload: AuthState
+}
+
 type Handler = (state: AuthState, payload: any) => void;
-type LiteralKeyedObject<K extends string, V> = { [key in K]: V };
-type Handlers = LiteralKeyedObject<Actions, Handler>;
 
-type Action = {
-  type: Actions;
-  payload?: any;
-};
+type HandlerServices = {
+  [ActionTypes.ON_USER_LOADED]: Handler,
+  [ActionTypes.ON_USER_UNLOADED]: Handler
+}
 
-const handlers: Handlers = {
+const handlers: HandlerServices = {
   ON_USER_LOADED: (state, { user }) => {
     state.pending = false;
     state.user = mapUser(user);
-
     const { url } = user.state || {};
     if (url) {
       state.redirectUrl = url;
@@ -46,18 +63,18 @@ const INITIAL_STATE: AuthState = {
   user: null,
   pending: true,
   error: null,
-  redirectUrl: undefined,
+  redirectUrl: null,
 };
 
-const reducer = (state: AuthState, { type, payload }: Action): AuthState => {
+const reducer: Reducer<AuthState, AuthAction>  = (state, { type, payload }): AuthState => {
   switch (type) {
-    case "ON_USER_LOADED":
+    case ActionTypes.ON_USER_LOADED:
       return {
         pending: false,
         user: mapUser(payload),
         error: null,
       };
-    case "ON_USER_UNLOADED":
+    case ActionTypes.ON_USER_UNLOADED:
       return {
         pending: false,
         user: null,
@@ -80,45 +97,49 @@ export const AuthProvider = (props: any) => {
         //break
       }
 
-      const user = JSON.parse(currentUserString);
-      console.log("Initial user", user);
+      if (currentUserString) {
+        const user: User = JSON.parse(currentUserString);
+        console.log("Initial User: ", user);
 
-      useSubscription(
-        "user-login",
-        dispatch({ type: "ON_USER_LOADED", payload: { user } })
-      );
+        if (user) {
+          // useSubscription(
+          //   "user-login",
+          //   () => dispatch({ type: ActionTypes.ON_USER_LOADED, payload: { ...state, user } })
+          // );
+    
+          // useSubscription(
+          //   "user-logout",
+          //   () => dispatch({ type: ActionTypes.ON_USER_UNLOADED, payload: { ...state, user } })
+          // );
 
-      useSubscription(
-        "user-logout",
-        dispatch({ type: "ON_USER_UNLOADED", payload: {} })
-      );
+          // dispatch({ type: ActionTypes.ON_USER_LOADED, payload: { ...state, user } });
 
-      if (user) {
-        dispatch({ type: "ON_USER_LOADED", payload: { user } });
-      } else if (window.location.href.includes("#id_token")) {
-        console.log("Handle callback");
-        try {
-          await userManager.signinRedirectCallback();
-        } catch (error) {
-          console.log("Callback Error", error);
+          // if (window.location.href.includes("#id_token")) {
+          //   console.log("Handle callback");
+          //   try {
+          //     await authenticationService.signinRedirectCallback();
+          //   } catch (error) {
+          //     console.log("Callback Error", error);
 
-          window.location = Env.appRoot as any;
-        }
-      } else {
-        dispatch({ type: "REDIRECTING", payload: {} });
+          //     window.location = Env.appRoot as any;
+          //   }
+          // } else {
+          //   dispatch({ type: ActionTypes.REDIRECTING, payload: {...state} });
 
-        let pathname = window.location.pathname;
-        if (Env.subdirectory) {
-          pathname = pathname.replace(Env.subdirectory, "");
-        }
+          //   let pathname = window.location.pathname;
+          //   if (Env.subdirectory) {
+          //     pathname = pathname.replace(Env.subdirectory, "");
+          //   }
 
-        let search = window.location.search;
+          //   let search = window.location.search;
 
-        userManager.signinRedirect({
-          state: {
-            url: pathname + search,
-          },
-        });
+          //   authenticationService.signinRedirect({
+          //     state: {
+          //       url: pathname + search,
+          //     },
+          //   });
+          // }
+    }
       }
     })();
   }, []);
