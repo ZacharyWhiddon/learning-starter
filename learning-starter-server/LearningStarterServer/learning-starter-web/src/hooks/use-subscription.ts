@@ -6,7 +6,7 @@ let emitter = mitt();
 
 type SubscriptionEventMap = {
   "user-logout": undefined;
-  "user-login": User;
+  "user-login": undefined;
 };
 
 export type SubscriptionEvents = keyof SubscriptionEventMap;
