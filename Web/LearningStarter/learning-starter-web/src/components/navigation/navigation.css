@@ -1,0 +1,138 @@
+.top-navigation.ui.secondary.menu {
+  z-index: 3;
+  margin: 0;
+  padding: 0 25px 0 10px;
+  border-bottom: solid 1px #d7d6d4;
+  height: 60px !important;
+}
+
+.top-navigation.ui.secondary.menu .ui.header {
+  color: black;
+  font-weight: normal;
+}
+
+.top-navigation.ui.secondary.menu .logo {
+  height: 40px;
+  width: 45px;
+}
+
+.top-navigation.ui.secondary.menu .ui.dropdown .menu {
+  box-shadow: 0px 1px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+.top-navigation.ui.secondary.menu .ui.secondary.menu.desktop-navigation {
+  border-bottom-color: #fff !important;
+}
+
+.top-navigation.ui.secondary.menu .ui.secondary.menu.desktop-navigation .item {
+  transition: background-color 0.5s ease;
+  transition: color 0.5s ease;
+  color: black;
+  cursor: pointer;
+  text-align: left;
+  border-bottom-color: #fff;
+  padding-bottom: 1rem;
+}
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item.header {
+  margin-top: 10px;
+  margin-bottom: 0;
+  padding-bottom: 5px;
+  cursor: default;
+}
+
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item:hover:not(.header) {
+  color: #1b1c1d;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item.active,
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item.active:hover {
+  background-color: #d7d6d4;
+}
+
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item.active,
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item.active:hover
+  > .label {
+  background-color: #ecebea;
+  color: lighten(0.05, #1b1c1d);
+}
+
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item.dropdown
+  .item.active,
+.item.active:hover {
+  border: none;
+  background-color: #ecebea;
+}
+
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item
+  > i.icon {
+  float: none;
+  margin-right: 10px;
+}
+
+.top-navigation.ui.secondary.menu
+  .ui.secondary.menu.desktop-navigation
+  .item
+  > .label {
+  background-color: #767676;
+}
+
+.logo-container {
+  padding: 10px;
+}
+
+.logo-container .logo {
+  width: 50%;
+  margin: 10px auto;
+  max-height: 40px;
+}
+
+.logo-container .terms {
+  display: block;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.user-icon.ui.item {
+  height: 30px;
+  width: 30px;
+  display: flex;
+  padding: 0;
+  border-radius: 30px;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.5rem;
+}
+
+.user-icon.ui.item:hover {
+  background-color: #ecebea !important;
+}
+
+.top-navigation.ui.secondary.menu .logo-menu-item {
+  padding: 0px;
+  background-color: #fff !important;
+  margin-right: 20px;
+}
+
+.user-icon-initial {
+  display: block;
+  text-align: center;
+  padding-left: 1px;
+  font-size: 1.5rem;
+}
