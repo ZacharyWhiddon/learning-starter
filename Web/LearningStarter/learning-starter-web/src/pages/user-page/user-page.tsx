@@ -1,5 +1,5 @@
 import React from "react";
-import { useUser } from "../authentication/use-auth";
+import { useUser } from "../../authentication/use-auth";
 import { Header, Container, Divider } from "semantic-ui-react";
 
 export const UserPage = () => {

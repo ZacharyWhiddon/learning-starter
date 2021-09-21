@@ -1,14 +1,14 @@
 import "./navigation.css";
 import React, { useMemo } from "react";
-import { Link, NavLink, NavLinkProps } from "react-router-dom";
+import { NavLink, NavLinkProps } from "react-router-dom";
 import { Dropdown, Image, Menu, Icon, SemanticICONS } from "semantic-ui-react";
-import logo from "../assets/logo.png";
-import { User } from "../types";
-import { logoutUser } from "../authentication/authentication-services";
-import { routes } from "../routes/config";
+import logo from "../../assets/logo.png";
+import { User } from "../../constants/types";
+import { logoutUser } from "../../authentication/authentication-services";
+import { routes } from "../../routes/config";
 
 type PrimaryNavigationProps = {
-  user: User;
+  user?: User;
 };
 
 type NavigationItem = {
@@ -26,6 +26,7 @@ type NavigationItem = {
   | { nav?: never; children: NavigationItem[] }
 );
 
+//This is where the navigation buttons are defined.
 const DesktopNavigation = () => {
   const navigation: NavigationItem[] = useMemo(() => {
     return [
@@ -34,7 +35,7 @@ const DesktopNavigation = () => {
         icon: "home",
         hide: false,
         nav: {
-          to: routes.root,
+          to: routes.home,
         },
       },
       {
@@ -45,9 +46,34 @@ const DesktopNavigation = () => {
           to: routes.user,
         },
       },
+      //Example of nested page buttons.  this will render as a dropdown item with the page buttons as options
+      // {
+      //   text: "User",
+      //   icon: "user",
+      //   hide: false,
+      //   children: [
+      //     {
+      //       text: "Home",
+      //       icon: "home",
+      //       hide: false,
+      //       nav: {
+      //         to: routes.root,
+      //       },
+      //     },
+      //     {
+      //       text: "User",
+      //       icon: "user",
+      //       hide: false,
+      //       nav: {
+      //         to: routes.user,
+      //       },
+      //     },
+      //   ]
+      // },
     ];
   }, []);
 
+  //This is where the navigation buttons are mapped over to produce the links and such.
   return (
     <Menu
       secondary
@@ -81,7 +107,7 @@ const DesktopNavigation = () => {
                           as={NavLink}
                           to={y.nav?.to}
                         >
-                          {y.icon && <Icon size="small" fitted name={x.icon} />}{" "}
+                          {y.icon && <Icon size="small" fitted name={y.icon} />}{" "}
                           {y.text}
                         </Dropdown.Item>
                       );
@@ -100,41 +126,50 @@ const DesktopNavigation = () => {
   );
 };
 
+//This defines the container for all the nav stuff at the top
 export const PrimaryNavigation: React.FC<PrimaryNavigationProps> = ({
   user,
 }) => {
   return (
     <Menu secondary className="top-navigation">
-      <Menu.Item as={Link} to={routes.root} className="logo-menu-item">
-        <Image size="mini" src={logo} alt="LDWF logo" className="logo" />
+      <Menu.Item
+        as={user ? NavLink : ""}
+        to={routes.home}
+        className="logo-menu-item"
+      >
+        <Image size="mini" src={logo} alt="logo" className="logo" />
       </Menu.Item>
-      <DesktopNavigation />
-      <Menu.Menu position="right">
-        <Dropdown
-          item
-          className="user-icon"
-          trigger={
-            <span
-              className="user-icon-initial"
-              title={`${user.firstName} ${user.lastName}`}
+      {user && (
+        <>
+          <DesktopNavigation />
+          <Menu.Menu position="right">
+            <Dropdown
+              item
+              className="user-icon"
+              trigger={
+                <span
+                  className="user-icon-initial"
+                  title={`${user.firstName} ${user.lastName}`}
+                >
+                  {user.firstName.substring(0, 1).toUpperCase()}
+                  {user.lastName.substring(0, 1).toUpperCase()}
+                </span>
+              }
+              icon={null}
             >
-              {user.firstName.substring(0, 1).toUpperCase()}
-              {user.lastName.substring(0, 1).toUpperCase()}
-            </span>
-          }
-          icon={null}
-        >
-          <Dropdown.Menu>
-            <Dropdown.Item
-              onClick={async () => {
-                logoutUser();
-              }}
-            >
-              Sign Out
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </Menu.Menu>
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  onClick={async () => {
+                    logoutUser();
+                  }}
+                >
+                  Sign Out
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </Menu.Menu>
+        </>
+      )}
     </Menu>
   );
 };

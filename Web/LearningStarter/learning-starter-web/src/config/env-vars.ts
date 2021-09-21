@@ -1,3 +1,5 @@
+// This is environment variables.  Ignore these :)
+
 type REACT_APP_ENVIRONMENT = "local" | "development" | "production";
 
 export type Env = {

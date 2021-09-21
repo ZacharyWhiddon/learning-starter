@@ -1,26 +1,19 @@
 import axios from "axios";
-import React, { createContext, useContext, useEffect } from "react";
-import { useAsyncRetry } from "react-use";
+import React, { createContext, useContext } from "react";
+import { useAsyncRetry, useAsyncFn } from "react-use";
 import { Dimmer, Loader } from "semantic-ui-react";
 import { ApiResponse } from "../constants/types";
 import { useSubscription } from "../hooks/use-subscription";
 import { useProduce } from "../hooks/use-produce";
 import { Error } from "../constants/types";
-import { LoginPage } from "../pages/login";
-import { User } from "../types/index";
+import { LoginPage } from "../pages/login-page/login-page";
+import { User } from "../constants/types";
+import { StatusCodes } from "../constants/status-codes";
 
 const currentUser = "currentUser";
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
-const getUserItem = () => {
-  const userString = sessionStorage.getItem(currentUser);
-  if (userString === null) {
-    return null;
-  }
-  const user: User = JSON.parse(userString);
-  return user;
-};
-
+//functions for setting session storage
 const setUserItem = (user: UserDto) => {
   sessionStorage.setItem(currentUser, JSON.stringify(mapUser(user)));
 };
@@ -46,6 +39,8 @@ export const AuthContext = createContext<AuthState>(INITIAL_STATE);
 export const AuthProvider = (props: any) => {
   const [state, setState] = useProduce<AuthState>(INITIAL_STATE);
 
+  //This is the main function for getting the user information from the database.
+  //This function gets called on every "notify("user-login") in order to fetfch the user data."
   const fetchCurrentUser = useAsyncRetry(async () => {
     setState((draft) => {
       draft.errors = [];
@@ -53,6 +48,7 @@ export const AuthProvider = (props: any) => {
 
     const response = await axios
       .get<GetUserResponse>(`${baseUrl}/api/get-current-user`)
+      //.then is what happens once the response comes back from the API.
       .then((response) => {
         if (response.data.hasErrors) {
           response.data.errors.forEach((err) => {
@@ -62,34 +58,75 @@ export const AuthProvider = (props: any) => {
         }
         return response.data;
       })
+      //.catch will catch any exceptions (Different from Error Codes) from the call.
       .catch((exc) => {
         console.error(exc);
         return null;
       });
 
+    //Handling if an exception is thrown from the catch.
     if (response === null) {
       return null;
     }
 
+    //Updating the state of the context to have the user data as well as any errors.
     setState((draft) => {
       draft.user = response.data;
       draft.errors = response.errors;
     });
 
+    //Setting the session storage item of the user.
     setUserItem(response.data);
   }, [setState]);
 
+  //Same deal as login.  This function is used to call the logout endpoint
+  const [, logoutUser] = useAsyncFn(async () => {
+    setState((draft) => {
+      draft.errors = [];
+    });
+
+    //Setting up axios call
+    const response = await axios
+      .post(`${baseUrl}/api/logout`)
+      .then((res) => {
+        if (res.status !== StatusCodes.OK) {
+          console.log(`Error on logout: ${res.statusText}`);
+          return res;
+        }
+        console.log("Successfully Logged Out!");
+        return res;
+      })
+      .catch((exc) => {
+        console.error(exc);
+        return null;
+      });
+
+    //Handling if an exception is thrown from the catch.
+    if (response === null) {
+      return null;
+    }
+
+    if (response.status === StatusCodes.OK) {
+      removeUserItem();
+      setState((draft) => {
+        draft.user = null;
+      });
+    }
+
+    return response;
+  }, []);
+
+  //This listens for any "notify("user-login") and performs the action specified."
   useSubscription("user-login", () => {
     fetchCurrentUser.retry();
   });
 
+  //This listens for any "notify("user-logout") and performs the action specified."
   useSubscription("user-logout", () => {
-    removeUserItem();
-    setState((draft) => {
-      draft.user = null;
-    });
+    logoutUser();
   });
 
+  //This returns a Loading screen if the API call takes a long time to get user info
   if (fetchCurrentUser.loading) {
     return (
       <Dimmer active inverted>
@@ -98,10 +135,13 @@ export const AuthProvider = (props: any) => {
     );
   }
 
+  //Brings unauthenticated users to the login page.
+  //This can be made to bring them to a different part of the app eventually
   if (!state.user && !fetchCurrentUser.loading) {
     return <LoginPage />;
   }
 
+  //Once they are logged in and not loading, it brings them to the app.
   return <AuthContext.Provider value={state} {...props} />;
 };
 
@@ -112,6 +152,7 @@ type UserDto = User & {
 
 type GetUserResponse = ApiResponse<UserDto>;
 
+//This function is available anywhere wrapped inside of the <AuthProvider>.  See Config.tsx for example.
 export function useUser(): User {
   const { user } = useContext(AuthContext);
   if (!user) {
@@ -120,6 +161,7 @@ export function useUser(): User {
   return user;
 }
 
+//This is used to map an object (any type) to a User entity.
 export const mapUser = (user: any): User => ({
   firstName: user.firstName,
   lastName: user.lastName,

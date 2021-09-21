@@ -1,4 +1,4 @@
-﻿using LearningStarterServer.Common;
+﻿using System;
 using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
@@ -6,7 +6,6 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
 using LearningStarterServer.Data;
 
 namespace LearningStarterServer.Services
@@ -14,8 +13,11 @@ namespace LearningStarterServer.Services
     public interface IAuthenticationService
     {
         bool Login(string username, string password);
+
         void Logout();
+
         bool IsUserLoggedIn();
+
         User GetLoggedInUser();
     }
 
@@ -76,7 +78,8 @@ namespace LearningStarterServer.Services
             var claimsIdentity = new ClaimsIdentity(
                 claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            var authProperties = new AuthenticationProperties();
+            var authProperties = new AuthenticationProperties { IssuedUtc = DateTimeOffset.UtcNow };
+            authProperties.ExpiresUtc = authProperties.IssuedUtc.Value.AddDays(1);
 
             await _httpContextAccessor.HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,
