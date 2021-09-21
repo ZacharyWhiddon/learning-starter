@@ -10,9 +10,9 @@ type PageWrapperProps = {
 //This is the wrapper that surrounds every page in the app.  Changes made here will be reflect all over.
 export const PageWrapper: React.FC<PageWrapperProps> = ({ user, children }) => {
   return (
-    <div className="main-content">
+    <div className="content">
       <PrimaryNavigation user={user} />
-      {children}
+      <div className="main-content">{children}</div>
     </div>
   );
 };

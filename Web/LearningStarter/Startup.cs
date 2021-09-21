@@ -1,13 +1,13 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LearningStarter.Entities;
 using LearningStarterServer.Data;
 using LearningStarterServer.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace LearningStarterServer
+namespace LearningStarter
 {
     public class Startup
     {
@@ -133,15 +133,30 @@ namespace LearningStarterServer
             dataContext.Database.Migrate();
 
             var numUsers = dataContext.Users.Count();
+            var numClasses = dataContext.Classes.Count();
+            var seededUser = new LearningStarterServer.Entities.User
+            {
+                FirstName = "Seeded",
+                LastName = "User",
+                Username = "admin",
+                Password = "password"
+            };
 
             if (numUsers == 0)
             {
-                dataContext.Users.Add(new Entities.User
+
+                dataContext.Users.Add(seededUser);
+                dataContext.SaveChanges();
+            }
+
+            if (numClasses == 0)
+            {
+                var user = dataContext.Users.First();
+                dataContext.Classes.Add(new Class
                 {
-                    FirstName = "Seeded",
-                    LastName = "User",
-                    Username = "admin",
-                    Password = "password"
+                    Capacity = 20,
+                    Subject = "Computer Science",
+                    User = user,
                 });
                 dataContext.SaveChanges();
             }

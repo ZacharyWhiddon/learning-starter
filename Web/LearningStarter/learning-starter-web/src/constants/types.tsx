@@ -18,4 +18,13 @@ export type AnyObject = {
 export type User = {
   firstName: string;
   lastName: string;
+  userName: string;
+};
+
+export type ClassDto = {
+  id: number;
+  capacity: number;
+  subject: string;
+  userId: number;
+  user: User;
 };

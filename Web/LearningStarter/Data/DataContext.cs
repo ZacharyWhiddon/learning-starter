@@ -1,4 +1,5 @@
-﻿using LearningStarterServer.Entities;
+﻿using LearningStarter.Entities;
+using LearningStarterServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearningStarterServer.Data
@@ -11,6 +12,8 @@ namespace LearningStarterServer.Data
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Class> Classes { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,6 +32,19 @@ namespace LearningStarterServer.Data
             modelBuilder.Entity<User>()
                 .Property(x => x.Password)
                 .IsRequired();
+
+            modelBuilder.Entity<Class>()
+                .Property(x => x.Capacity)
+                .IsRequired();
+
+            modelBuilder.Entity<Class>()
+                .Property(x => x.Subject)
+                .IsRequired();
+
+            modelBuilder.Entity<Class>()
+                .Property(x => x.UserId)
+                .IsRequired();
+
         }
     }
 }

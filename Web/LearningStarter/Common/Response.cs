@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using LearningStarterServer.Common;
 
-namespace LearningStarterServer.Common
+namespace LearningStarter.Common
 {
     public class Response
     {

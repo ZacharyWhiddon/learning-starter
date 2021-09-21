@@ -4,6 +4,9 @@ using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using System.Threading.Tasks;
+using LearningStarter.Common;
+using Microsoft.EntityFrameworkCore;
 
 namespace LearningStarterServer.Controllers
 {
@@ -20,10 +23,10 @@ namespace LearningStarterServer.Controllers
         }
 
         [HttpGet("get-all")]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
             var response = new Response();
-            response.Data = _context.Users.ToList();
+            response.Data = await _context.Users.ToListAsync();
             return Ok(response);
         }
 

@@ -162,7 +162,7 @@ export function useUser(): User {
 }
 
 //This is used to map an object (any type) to a User entity.
-export const mapUser = (user: any): User => ({
+export const mapUser = (user: any): Omit<User, "userName"> => ({
   firstName: user.firstName,
   lastName: user.lastName,
 });

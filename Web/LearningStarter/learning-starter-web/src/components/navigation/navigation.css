@@ -1,9 +1,8 @@
 .top-navigation.ui.secondary.menu {
-  box-shadow: rgb(87, 99, 105) 2px 0px 5px -2px;
   z-index: 3;
   margin: 0;
   padding: 0 25px 0 10px;
-  border-bottom: solid 1px #f5f5f5;
+  border-bottom: solid 1px #d7d6d4;
   height: 60px !important;
 }
 

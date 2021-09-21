@@ -46,30 +46,27 @@ const DesktopNavigation = () => {
           to: routes.user,
         },
       },
-      //Example of nested page buttons.  this will render as a dropdown item with the page buttons as options
-      // {
-      //   text: "User",
-      //   icon: "user",
-      //   hide: false,
-      //   children: [
-      //     {
-      //       text: "Home",
-      //       icon: "home",
-      //       hide: false,
-      //       nav: {
-      //         to: routes.root,
-      //       },
-      //     },
-      //     {
-      //       text: "User",
-      //       icon: "user",
-      //       hide: false,
-      //       nav: {
-      //         to: routes.user,
-      //       },
-      //     },
-      //   ]
-      // },
+      {
+        text: "Classes",
+        children: [
+          {
+            text: "Listing",
+            icon: "clipboard list",
+            hide: false,
+            nav: {
+              to: routes.classes,
+            },
+          },
+          {
+            text: "Create",
+            icon: "plus square",
+            hide: false,
+            nav: {
+              to: routes.classesCreate,
+            },
+          },
+        ],
+      },
     ];
   }, []);
 
