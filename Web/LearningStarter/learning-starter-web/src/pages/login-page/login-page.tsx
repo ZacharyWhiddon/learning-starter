@@ -50,7 +50,7 @@ export const LoginPage = () => {
 
   return (
     <PageWrapper>
-      <div className="flex-box-centered-content">
+      <div className="flex-box-centered-content-login-page">
         <div className="login-form">
           <Formik initialValues={initialValues} onSubmit={submitLogin}>
             <Form>
@@ -67,7 +67,7 @@ export const LoginPage = () => {
                   </div>
                   <Field className="field" id="password" name="password" />
                 </div>
-                <div className="button-container">
+                <div className="button-container-login-page">
                   <Button className="login-button" type="submit">
                     Login
                   </Button>
