@@ -1,0 +1,27 @@
+.flex-box-centered-content {
+  /* Flexbox!! https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
+  display: flex;
+  flex: auto;
+  justify-content: center;
+  align-items: center;
+}
+
+.field-label {
+  text-align: left;
+  margin-bottom: 3px;
+}
+
+.field {
+  margin-bottom: 5px;
+}
+
+.create-class-form {
+  height: 50%;
+  margin-bottom: 25%;
+}
+
+.button-container {
+  margin-top: 5px;
+  display: flex;
+  justify-content: center;
+}
