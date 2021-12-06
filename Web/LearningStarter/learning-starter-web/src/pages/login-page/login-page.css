@@ -1,26 +1,15 @@
-.flex-box-centered-content {
+.flex-box-centered-content-login-page {
   /* Flexbox!! https://css-tricks.com/snippets/css/a-guide-to-flexbox/ */
   display: flex;
   flex: auto;
   justify-content: center;
-  align-items: center;
-}
-
-.field-label {
-  text-align: left;
-  margin-bottom: 3px;
-}
-
-.field {
-  margin-bottom: 5px;
 }
 
 .login-form {
-  height: 50%;
-  margin-bottom: 25%;
+  margin-top: 10px;
 }
 
-.button-container {
+.button-container-login-page {
   margin-top: 5px;
   display: flex;
   justify-content: center;

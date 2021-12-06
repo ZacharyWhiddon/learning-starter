@@ -6,21 +6,12 @@
   align-items: center;
 }
 
-.field-label {
-  text-align: left;
-  margin-bottom: 3px;
-}
-
-.field {
-  margin-bottom: 5px;
-}
-
 .create-class-form {
   height: 50%;
   margin-bottom: 25%;
 }
 
-.button-container {
+.button-container-create-class {
   margin-top: 5px;
   display: flex;
   justify-content: center;

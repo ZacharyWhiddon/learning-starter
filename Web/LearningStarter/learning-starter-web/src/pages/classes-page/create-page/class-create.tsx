@@ -78,7 +78,7 @@ export const ClassCreatePage = () => {
                 </div>
                 <Field className="field" id="userId" name="userId" />
               </div>
-              <div className="button-container">
+              <div className="button-container-create-class">
                 <Button className="create-button" type="submit">
                   Create
                 </Button>
