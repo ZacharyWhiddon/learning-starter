@@ -29,9 +29,9 @@ namespace LearningStarter.Common
             return classDtosToReturn;
         }
 
-        public static UserDto ToDto(this User user)
+        public static UserGetDto ToDto(this User user)
         {
-            var userDto = new UserDto
+            var userDto = new UserGetDto
             {
                 Id = user.Id,
                 FirstName = user.FirstName,

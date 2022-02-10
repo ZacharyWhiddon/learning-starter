@@ -1,11 +1,11 @@
 ﻿using LearningStarterServer.Common;
-using LearningStarterServer.Data;
 using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 using LearningStarter.Common;
+using LearningStarter.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearningStarterServer.Controllers
@@ -31,26 +31,26 @@ namespace LearningStarterServer.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(User user)
+        public IActionResult Create(UserCreateDto userCreateDto)
         {
             var response = new Response();
 
-            if (user.FirstName == null || user.FirstName == "")
+            if (userCreateDto.FirstName == null || userCreateDto.FirstName == "")
             {
                 response.AddError("First Name", "First name cannot be empty.");
             }
 
-            if (user.LastName == null || user.LastName == "")
+            if (userCreateDto.LastName == null || userCreateDto.LastName == "")
             {
                 response.AddError("Last Name", "Last name cannot be empty.");
             }
 
-            if (user.Username == null || user.Username == "")
+            if (userCreateDto.Username == null || userCreateDto.Username == "")
             {
                 response.AddError("User Name", "User name cannot be empty.");
             }
 
-            if (user.Password == null || user.Password == "")
+            if (userCreateDto.Password == null || userCreateDto.Password == "")
             {
                 response.AddError("Password", "Password cannot be empty.");
             }
@@ -60,10 +60,26 @@ namespace LearningStarterServer.Controllers
                 return BadRequest(response);
             }
 
-            _context.Users.Add(user);
+            var userToCreate = new User
+            {
+                FirstName = userCreateDto.FirstName,
+                LastName = userCreateDto.LastName,
+                Username = userCreateDto.Username,
+                Password = userCreateDto.Password,
+            };
+
+            _context.Users.Add(userToCreate);
             _context.SaveChanges();
 
-            response.Data = user;
+            var userGetDto = new UserGetDto
+            {
+                Id = userToCreate.Id,
+                FirstName = userToCreate.FirstName,
+                LastName = userToCreate.LastName,
+                Username = userToCreate.Username
+            };
+
+            response.Data = userGetDto;
 
             return Created("", response);
         }
@@ -73,7 +89,7 @@ namespace LearningStarterServer.Controllers
         {
             var response = new Response();
 
-            var user = _context.Users.Find(id);
+            var user = _context.Users.FirstOrDefault(x => x.Id == id);
 
             if(user == null)
             {
@@ -81,21 +97,35 @@ namespace LearningStarterServer.Controllers
                 return NotFound(response);
             }
 
-            response.Data = user;
+            var userGetDto = new UserGetDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.Username
+            };
+
+            response.Data = userGetDto;
 
             return Ok(response);
         }
 
         [HttpPut]
-        public IActionResult Edit(int id, User user)
+        public IActionResult Edit(int id, UserUpdateDto user)
         {
             var response = new Response();
 
-            var userToEdit = _context.Users.Find(id);
-
             if (user == null)
             {
-                response.AddError("id", "There was a problem deleting the user.");
+                response.AddError("id", "There was a problem editing the user.");
+                return NotFound(response);
+            }
+            
+            var userToEdit = _context.Users.FirstOrDefault(x => x.Id == id);
+
+            if (userToEdit == null)
+            {
+                response.AddError("id", "Could not find user to edit.");
                 return NotFound(response);
             }
 
@@ -131,7 +161,15 @@ namespace LearningStarterServer.Controllers
 
             _context.SaveChanges();
 
-            response.Data = userToEdit;
+            var userGetDto = new UserGetDto
+            {
+                Id = userToEdit.Id,
+                FirstName = userToEdit.FirstName,
+                LastName = userToEdit.LastName,
+                Username = userToEdit.Username
+            };
+
+            response.Data = userGetDto;
 
             return Ok(response);
         }
@@ -141,7 +179,7 @@ namespace LearningStarterServer.Controllers
         {
             var response = new Response();
 
-            var user = _context.Users.Find(id);
+            var user = _context.Users.FirstOrDefault(x => x.Id == id);
 
             if (user == null)
             {

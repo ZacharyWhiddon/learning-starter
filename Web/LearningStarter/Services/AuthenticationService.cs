@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using LearningStarter.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using LearningStarterServer.Data;
 
 namespace LearningStarterServer.Services
 {

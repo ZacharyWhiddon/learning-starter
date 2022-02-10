@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LearningStarter.Data;
 using LearningStarter.Entities;
-using LearningStarterServer.Data;
 using LearningStarterServer.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -41,6 +41,7 @@ namespace LearningStarter
 
             services.AddDbContext<DataContext>(options =>
             {
+                // options.UseInMemoryDatabase("FooBar");
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
@@ -89,6 +90,9 @@ namespace LearningStarter
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataContext dataContext)
         {
+            dataContext.Database.EnsureDeleted();
+            dataContext.Database.EnsureCreated();
+            
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -129,8 +133,6 @@ namespace LearningStarter
                     spa.UseProxyToSpaDevelopmentServer("http://localhost:3001");
                 }
             });
-
-            dataContext.Database.Migrate();
 
             var numUsers = dataContext.Users.Count();
             var numClasses = dataContext.Classes.Count();

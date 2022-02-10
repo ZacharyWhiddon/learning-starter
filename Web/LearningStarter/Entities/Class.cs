@@ -23,7 +23,7 @@ namespace LearningStarter.Entities
         public string Subject { get; set; }
         public int Capacity { get; set; }
         public int UserId { get; set; }
-        public UserDto User { get; set; }
+        public UserGetDto User { get; set; }
     }
 
     public class ClassConfiguration : IEntityTypeConfiguration<Class>
