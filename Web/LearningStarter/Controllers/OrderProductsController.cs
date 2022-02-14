@@ -66,21 +66,20 @@ namespace LearningStarter.Controllers
 
         [HttpPost]
         public IActionResult Create(
-            [FromBody] OrderProductsCreateDto orderProductCreateDto)
+            [FromBody] OrderProductCreateDto orderProductCreateDto)
         {
             var response = new Response();
 
-            var orderProductToCreate = new OrderProducts
+            var orderProductToCreate = new OrderProduct
             {
-                UserId = orderProductCreateDto.UserId,
-                PreparationStepId = orderProductCreateDto.PreparationStepId,
-                CreatedDate = DateTimeOffset.Now,
+                OrderId = orderProductCreateDto.OrderId,
+                ProductId = orderProductCreateDto.ProductId,
             };
 
             _dataContext.OrderProducts.Add(orderProductToCreate);
             _dataContext.SaveChanges();
 
-            var orderGetDto = new OrderProductGetDto
+            var orderProductGetDto = new OrderProductGetDto
             {
                 Id = orderProductToCreate.Id,
                 OrderId = orderProductToCreate.OrderId,
@@ -91,7 +90,7 @@ namespace LearningStarter.Controllers
                 UserLastName = orderProductToCreate.Order.User.LastName,
             };
 
-            response.Data = orderGetDto;
+            response.Data = orderProductGetDto;
             return Ok(response);
         }
 
@@ -105,11 +104,12 @@ namespace LearningStarter.Controllers
                 .OrderProducts
                 .FirstOrDefault(x => x.Id == orderProductUpdateDto.Id);
 
-            orderProductToUpdate.PreparationStepId = orderProductUpdateDto.PreparationStepId;
+            orderProductToUpdate.OrderId = orderProductUpdateDto.OrderId;
+            orderProductToUpdate.ProductId = orderProductUpdateDto.ProductId;
 
             _dataContext.SaveChanges();
 
-            var orderGetDto = new OrderProductGetDto
+            var orderProductGetDto = new OrderProductGetDto
             {
                 Id = orderProductToUpdate.Id,
                 OrderId = orderProductToUpdate.OrderId,
@@ -120,7 +120,7 @@ namespace LearningStarter.Controllers
                 UserLastName = orderProductToUpdate.Order.User.LastName,
             };
 
-            response.Data = orderGetDto;
+            response.Data = orderProductGetDto;
             return Ok(response);
         }
 
