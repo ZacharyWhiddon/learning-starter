@@ -46,37 +46,25 @@ export const AuthProvider = (props: any) => {
       draft.errors = [];
     });
 
-    const response = await axios
-      .get<GetUserResponse>(`${baseUrl}/api/get-current-user`)
-      //.then is what happens once the response comes back from the API.
-      .then((response) => {
-        if (response.data.hasErrors) {
-          response.data.errors.forEach((err) => {
-            console.error(err.message);
-          });
-          return response.data;
-        }
-        return response.data;
-      })
-      //.catch will catch any exceptions (Different from Error Codes) from the call.
-      .catch((exc) => {
-        console.error(exc);
-        return null;
-      });
+    const response = await axios.get<GetUserResponse>(
+      `${baseUrl}/api/get-current-user`
+    );
 
-    //Handling if an exception is thrown from the catch.
-    if (response === null) {
-      return null;
+    if (response.data.hasErrors) {
+      response.data.errors.forEach((err) => {
+        console.error(err.message);
+      });
+      return response.data;
     }
 
     //Updating the state of the context to have the user data as well as any errors.
     setState((draft) => {
-      draft.user = response.data;
-      draft.errors = response.errors;
+      draft.user = response.data.data;
+      draft.errors = response.data.errors;
     });
 
     //Setting the session storage item of the user.
-    setUserItem(response.data);
+    setUserItem(response.data.data);
   }, [setState]);
 
   //Same deal as login.  This function is used to call the logout endpoint
@@ -86,25 +74,14 @@ export const AuthProvider = (props: any) => {
     });
 
     //Setting up axios call
-    const response = await axios
-      .post(`${baseUrl}/api/logout`)
-      .then((res) => {
-        if (res.status !== StatusCodes.OK) {
-          console.log(`Error on logout: ${res.statusText}`);
-          return res;
-        }
-        console.log("Successfully Logged Out!");
-        return res;
-      })
-      .catch((exc) => {
-        console.error(exc);
-        return null;
-      });
+    const response = await axios.post(`${baseUrl}/api/logout`);
 
-    //Handling if an exception is thrown from the catch.
-    if (response === null) {
-      return null;
+    if (response.status !== StatusCodes.OK) {
+      console.log(`Error on logout: ${response.statusText}`);
+      return response;
     }
+
+    console.log("Successfully Logged Out!");
 
     if (response.status === StatusCodes.OK) {
       removeUserItem();

@@ -3,7 +3,7 @@ import axios from "axios";
 import React, { useMemo } from "react";
 import { ApiResponse } from "../../constants/types";
 import { Formik, Form, Field } from "formik";
-import { Button } from "semantic-ui-react";
+import { Button, Input } from "semantic-ui-react";
 import { useAsyncFn } from "react-use";
 import { PageWrapper } from "../../components/page-wrapper/page-wrapper";
 import { loginUser } from "../../authentication/authentication-services";
@@ -35,17 +35,15 @@ export const LoginPage = () => {
       return;
     }
 
-    axios
-      .post<LoginResponse>(`${baseUrl}/api/authenticate`, values)
-      .then((response) => {
-        if (response.data.data) {
-          console.log("Successfully Logged In!");
-          loginUser();
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-      });
+    const response = await axios.post<LoginResponse>(
+      `${baseUrl}/api/authenticate`,
+      values
+    );
+
+    if (response.data.data) {
+      console.log("Successfully Logged In!");
+      loginUser();
+    }
   }, []);
 
   return (
@@ -59,13 +57,17 @@ export const LoginPage = () => {
                   <div className="field-label">
                     <label htmlFor="userName">UserName</label>
                   </div>
-                  <Field className="field" id="userName" name="userName" />
+                  <Field className="field" id="username" name="username">
+                    {({ field }) => <Input {...field} />}
+                  </Field>
                 </div>
                 <div>
                   <div className="field-label">
                     <label htmlFor="password">Password</label>
                   </div>
-                  <Field className="field" id="password" name="password" />
+                  <Field className="field" id="password" name="password">
+                    {({ field }) => <Input type="password" {...field} />}
+                  </Field>
                 </div>
                 <div className="button-container-login-page">
                   <Button className="login-button" type="submit">

@@ -3,16 +3,19 @@
   display: flex;
   flex: auto;
   justify-content: center;
-  align-items: center;
 }
 
 .create-class-form {
+  margin-top: 25px;
   height: 50%;
-  margin-bottom: 25%;
 }
 
 .button-container-create-class {
   margin-top: 5px;
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+}
+
+.form-field-container {
+  margin-bottom: 10px;
 }

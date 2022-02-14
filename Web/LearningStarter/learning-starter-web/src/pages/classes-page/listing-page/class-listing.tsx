@@ -9,20 +9,18 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 export const ClassListing = () => {
   const classes = useAsync(async () => {
-    const response = await axios
-      .get<ApiResponse<ClassDto[]>>(`${baseUrl}/api/classes`)
-      .then((response) => {
-        if (response.data.hasErrors) {
-          response.data.errors.forEach((err) => {
-            console.error(`${err.property}: ${err.message}`);
-          });
-          return response.data;
-        }
+    const response = await axios.get<ApiResponse<ClassDto[]>>(
+      `${baseUrl}/api/classes`
+    );
 
-        return response.data;
+    if (response.data.hasErrors) {
+      response.data.errors.forEach((err) => {
+        console.error(`${err.property}: ${err.message}`);
       });
+      return response.data.data;
+    }
 
-    return response.data;
+    return response.data.data;
   }, []);
 
   const classesToShow = classes.value;

@@ -2,7 +2,7 @@ import "./class-create.css";
 import axios from "axios";
 import React, { useMemo } from "react";
 import { Formik, Form, Field } from "formik";
-import { Button } from "semantic-ui-react";
+import { Button, Input } from "semantic-ui-react";
 import { useHistory } from "react-router-dom";
 import { useAsyncFn } from "react-use";
 import { ApiResponse, ClassDto } from "../../../constants/types";
@@ -34,24 +34,21 @@ export const ClassCreatePage = () => {
     values.userId = Number(values.userId);
     console.log("Values: ", values);
 
-    const createdClass = await axios
-      .post<CreateClassResponse>(`${baseUrl}/api/classes/create`, values)
-      .then((response) => {
-        if (response.data.hasErrors) {
-          response.data.errors.forEach((err) => {
-            console.error(`${err.property}: ${err.message}`);
-          });
-        }
-        console.log("Successfully Created Class");
-        alert("Successfully Created");
-        history.push(routes.classes);
-      })
-      .catch((e) => {
-        console.log(e);
-        return null;
-      });
+    const response = await axios.post<CreateClassResponse>(
+      `${baseUrl}/api/classes/create`,
+      values
+    );
 
-    return createdClass;
+    if (response.data.hasErrors) {
+      response.data.errors.forEach((err) => {
+        console.error(`${err.property}: ${err.message}`);
+      });
+      return response;
+    }
+
+    console.log("Successfully Created Class");
+    alert("Successfully Created");
+    history.push(routes.classes);
   }, []);
 
   return (
@@ -59,28 +56,40 @@ export const ClassCreatePage = () => {
       <div className="create-class-form">
         <Formik initialValues={initialValues} onSubmit={submitCreate}>
           <Form>
-            <div>
-              <div>
+            <div className="form-container">
+              <div className="form-field-container">
                 <div className="field-label">
                   <label htmlFor="subject">Subject</label>
                 </div>
-                <Field className="field" id="subject" name="subject" />
+                <Field className="field" id="subject" name="subject">
+                  {({ field }) => <Input {...field} />}
+                </Field>
               </div>
-              <div>
+              <div className="form-field-container">
                 <div className="field-label">
                   <label htmlFor="capacity">Capacity</label>
                 </div>
-                <Field className="field" id="capacity" name="capacity" />
+                <Field className="field" id="capacity" name="capacity">
+                  {({ field }) => <Input {...field} />}
+                </Field>
               </div>
-              <div>
+              <div className="form-field-container">
                 <div className="field-label">
                   <label htmlFor="userId">User Id</label>
                 </div>
-                <Field className="field" id="userId" name="userId" />
+                <Field className="field" id="userId" name="userId">
+                  {({ field }) => <Input {...field} />}
+                </Field>
               </div>
               <div className="button-container-create-class">
                 <Button className="create-button" type="submit">
                   Create
+                </Button>
+                <Button
+                  className="create-button"
+                  onClick={() => history.push(routes.home)}
+                >
+                  Cancel
                 </Button>
               </div>
             </div>

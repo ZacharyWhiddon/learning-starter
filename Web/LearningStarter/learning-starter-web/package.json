@@ -37,6 +37,18 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
+    "rules": {
+      "no-restricted-imports": [
+        2,
+        {
+          "name": "semantic-ui-react",
+          "importNames": [
+            "Form"
+          ],
+          "message": "Please use Formik instead."
+        }
+      ]
+    },
     "extends": [
       "react-app",
       "react-app/jest"
@@ -53,5 +65,4 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
 }
