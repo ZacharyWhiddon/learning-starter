@@ -3,6 +3,7 @@ using System.Linq;
 using LearningStarter.Common;
 using LearningStarter.Data;
 using LearningStarter.Entities;
+using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,7 +44,8 @@ namespace LearningStarter.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public IActionResult GetById(
+            [FromRoute] int id)
         {
             var response = new Response();
 
@@ -60,6 +62,12 @@ namespace LearningStarter.Controllers
                     CreatedDate = x.CreatedDate
                 })
                 .FirstOrDefault(x => x.Id == id);
+
+            if (ordersToReturn == null)
+            {
+                response.AddError("id", "Order not found.");
+                return NotFound(response);
+            }
 
             response.Data = ordersToReturn;
             return Ok(response);
@@ -78,6 +86,26 @@ namespace LearningStarter.Controllers
                 CreatedDate = DateTimeOffset.Now,
             };
 
+            var preparationStep = _dataContext
+                .Set<PreparationStep>()
+                .FirstOrDefault(x => x.Id == orderToCreate.PreparationStepId);
+
+            if (preparationStep == null)
+            {
+                response.AddError("PreparationStepId", "Preparation Step not found.");
+                return NotFound(response);
+            }
+
+            var user = _dataContext
+                .Set<User>()
+                .FirstOrDefault(x => x.Id == orderToCreate.UserId);
+
+            if (user == null)
+            {
+                response.AddError("UserId", "User not found.");
+                return NotFound(response);
+            }
+
             _dataContext.Orders.Add(orderToCreate);
             _dataContext.SaveChanges();
 
@@ -86,9 +114,9 @@ namespace LearningStarter.Controllers
                 Id = orderToCreate.Id,
                 UserId = orderToCreate.UserId,
                 PreparationStepId = orderToCreate.PreparationStepId,
-                PreparationStepName = orderToCreate.PreparationStep.Name,
-                UserFirstName = orderToCreate.User.FirstName,
-                UserLastName = orderToCreate.User.LastName,
+                PreparationStepName = preparationStep.Name,
+                UserFirstName = user.FirstName,
+                UserLastName = user.LastName,
                 CreatedDate = orderToCreate.CreatedDate
             };
 
@@ -96,17 +124,44 @@ namespace LearningStarter.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public IActionResult Update(
+            [FromRoute] int id,
             [FromBody] OrderUpdateDto orderUpdateDto)
         {
             var response = new Response();
 
             var orderToUpdate = _dataContext
                 .Orders
-                .FirstOrDefault(x => x.Id == orderUpdateDto.Id);
+                .FirstOrDefault(x => x.Id == id);
+
+            if (orderToUpdate == null)
+            {
+                response.AddError("id", "Order not found.");
+                return NotFound(response);
+            }
 
             orderToUpdate.PreparationStepId = orderUpdateDto.PreparationStepId;
+
+            var preparationStep = _dataContext
+                .Set<PreparationStep>()
+                .FirstOrDefault(x => x.Id == orderToUpdate.PreparationStepId);
+
+            if (preparationStep == null)
+            {
+                response.AddError("PreparationStepId", "Preparation Step not found.");
+                return NotFound(response);
+            }
+
+            var user = _dataContext
+                .Set<User>()
+                .FirstOrDefault(x => x.Id == orderToUpdate.UserId);
+
+            if (user == null)
+            {
+                response.AddError("UserId", "User not found.");
+                return NotFound(response);
+            }
 
             _dataContext.SaveChanges();
 
@@ -115,9 +170,9 @@ namespace LearningStarter.Controllers
                 Id = orderToUpdate.Id,
                 UserId = orderToUpdate.UserId,
                 PreparationStepId = orderToUpdate.PreparationStepId,
-                PreparationStepName = orderToUpdate.PreparationStep.Name,
-                UserFirstName = orderToUpdate.User.FirstName,
-                UserLastName = orderToUpdate.User.LastName,
+                PreparationStepName = preparationStep.Name,
+                UserFirstName = user.FirstName,
+                UserLastName = user.LastName,
                 CreatedDate = orderToUpdate.CreatedDate
             };
 
@@ -126,13 +181,19 @@ namespace LearningStarter.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(
+            [FromRoute] int id)
         {
             var response = new Response();
 
             var orderToDelete = _dataContext
                 .Orders
                 .FirstOrDefault(x => x.Id == id);
+
+            if (orderToDelete == null)
+            {
+                return Ok();
+            }
 
             var orderProductsToDelete = _dataContext
                 .OrderProducts

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace LearningStarter.Entities
+﻿namespace LearningStarter.Entities
 {
     public class OrderProduct
     {
@@ -19,7 +17,6 @@ namespace LearningStarter.Entities
 
     public class OrderProductUpdateDto
     {
-        public int Id { get; set; }
         public int ProductId { get; set; }
         public int OrderId { get; set; }
     }

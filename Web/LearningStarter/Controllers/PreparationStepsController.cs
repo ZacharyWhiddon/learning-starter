@@ -36,7 +36,8 @@ namespace LearningStarter.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public IActionResult GetById(
+            [FromRoute] int id)
         {
             var response = new Response();
 
@@ -49,6 +50,12 @@ namespace LearningStarter.Controllers
                 })
                 .FirstOrDefault(x => x.Id == id);
 
+            if (preparationStepsToReturn == null)
+            {
+                response.AddError("id", "Preparation Step not found.");
+                return NotFound(response);
+            }
+
             response.Data = preparationStepsToReturn;
             return Ok(response);
         }
@@ -58,6 +65,16 @@ namespace LearningStarter.Controllers
             [FromBody] PreparationStepCreateDto preparationStepCreateDto)
         {
             var response = new Response();
+
+            if (preparationStepCreateDto.Name == null || preparationStepCreateDto.Name == "")
+            {
+                response.AddError("Name", "Name must not be empty");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
 
             var preparationStepToCreate = new PreparationStep
             {
@@ -77,15 +94,32 @@ namespace LearningStarter.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public IActionResult Update(
+            [FromRoute] int id,
             [FromBody] PreparationStepUpdateDto preparationStepUpdateDto)
         {
             var response = new Response();
 
+            if (preparationStepUpdateDto.Name == null || preparationStepUpdateDto.Name == "")
+            {
+                response.AddError("Name", "Name must not be empty");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
+
             var preparationStepToUpdate = _dataContext
                 .PreparationSteps
-                .FirstOrDefault(x => x.Id == preparationStepUpdateDto.Id);
+                .FirstOrDefault(x => x.Id == id);
+
+            if (preparationStepToUpdate == null)
+            {
+                response.AddError("id", "Preparation Step not found.");
+                return NotFound(response);
+            }
 
             preparationStepToUpdate.Name = preparationStepUpdateDto.Name;
 
@@ -102,13 +136,19 @@ namespace LearningStarter.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(
+            [FromRoute] int id)
         {
             var response = new Response();
 
             var preparationStepToDelete = _dataContext
                 .PreparationSteps
                 .FirstOrDefault(x => x.Id == id);
+
+            if (preparationStepToDelete == null)
+            {
+                return Ok();
+            }
 
             _dataContext.PreparationSteps.Remove(preparationStepToDelete);
             _dataContext.SaveChanges();

@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LearningStarter.Controllers
 {
     [ApiController]
-    [Route("/api/product-types")]
+    [Route("api/product-types")]
     public class ProductTypesController : ControllerBase
     {
         private readonly DataContext _dataContext;
@@ -36,11 +36,12 @@ namespace LearningStarter.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public IActionResult GetById(
+            [FromRoute] int id)
         {
             var response = new Response();
 
-            var productTypesToReturn = _dataContext
+            var productTypeToReturn = _dataContext
                 .ProductTypes
                 .Select(x => new ProductTypeGetDto
                 {
@@ -49,7 +50,13 @@ namespace LearningStarter.Controllers
                 })
                 .FirstOrDefault(x => x.Id == id);
 
-            response.Data = productTypesToReturn;
+            if (productTypeToReturn == null)
+            {
+                response.AddError("id", "Requested Product Type does not exist.");
+                return NotFound(response);
+            }
+
+            response.Data = productTypeToReturn;
             return Ok(response);
         }
 
@@ -58,6 +65,16 @@ namespace LearningStarter.Controllers
             [FromBody] ProductTypeCreateDto productTypeCreateDto)
         {
             var response = new Response();
+
+            if (productTypeCreateDto.Name == null || productTypeCreateDto.Name == "")
+            {
+                response.AddError("Name", "Name must not be empty.");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
 
             var productTypeToCreate = new ProductType
             {
@@ -77,15 +94,32 @@ namespace LearningStarter.Controllers
             return Ok(response);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public IActionResult Update(
+            [FromRoute] int id,
             [FromBody] ProductTypeUpdateDto productTypeUpdateDto)
         {
             var response = new Response();
 
+            if (productTypeUpdateDto.Name == null || productTypeUpdateDto.Name == "")
+            {
+                response.AddError("Name", "Name must not be empty.");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
+
             var productTypeToUpdate = _dataContext
                 .ProductTypes
-                .FirstOrDefault(x => x.Id == productTypeUpdateDto.Id);
+                .FirstOrDefault(x => x.Id == id);
+
+            if (productTypeToUpdate == null)
+            {
+                response.AddError("id", "Product Type does not exist.");
+                return NotFound(response);
+            }
 
             productTypeToUpdate.Name = productTypeUpdateDto.Name;
 
@@ -102,18 +136,25 @@ namespace LearningStarter.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(
+            [FromRoute] int id)
         {
             var response = new Response();
 
-            var productTypeToUpdate = _dataContext
+            var productTypeToDelete = _dataContext
                 .ProductTypes
                 .FirstOrDefault(x => x.Id == id);
 
-            _dataContext.ProductTypes.Remove(productTypeToUpdate);
+            if (productTypeToDelete == null)
+            {
+                response.AddError("id", "Product Type does not exist.");
+                return NotFound(response);
+            }
+
+            _dataContext.ProductTypes.Remove(productTypeToDelete);
             _dataContext.SaveChanges();
 
-            return Ok();
+            return Ok(response);
         }
     }
 }

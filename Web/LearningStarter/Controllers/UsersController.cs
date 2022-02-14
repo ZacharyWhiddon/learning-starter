@@ -10,9 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LearningStarterServer.Controllers
 {
-    [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/users")]
     public class UsersController : ControllerBase
     {
         private readonly DataContext _context;
@@ -22,37 +21,76 @@ namespace LearningStarterServer.Controllers
             _context = context;
         }
 
-        [HttpGet("get-all")]
-        public async Task<IActionResult> GetAll()
+        [HttpGet]
+        public IActionResult GetAll()
         {
             var response = new Response();
-            response.Data = await _context.Users.ToListAsync();
+
+            response.Data = _context
+                .Users
+                .Select(x => new UserGetDto
+                {
+                    Id = x.Id,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Username = x.Username
+                })
+                .ToList();
+
+            return Ok(response);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(
+            [FromRoute] int id)
+        {
+            var response = new Response();
+
+            var user = _context.Users.FirstOrDefault(x => x.Id == id);
+
+            if (user == null)
+            {
+                response.AddError("id", "There was a problem finding the user.");
+                return NotFound(response);
+            }
+
+            var userGetDto = new UserGetDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.Username
+            };
+
+            response.Data = userGetDto;
+
             return Ok(response);
         }
 
         [HttpPost]
-        public IActionResult Create(UserCreateDto userCreateDto)
+        public IActionResult Create(
+            [FromBody] UserCreateDto userCreateDto)
         {
             var response = new Response();
 
             if (userCreateDto.FirstName == null || userCreateDto.FirstName == "")
             {
-                response.AddError("First Name", "First name cannot be empty.");
+                response.AddError("firstName", "First name cannot be empty.");
             }
 
             if (userCreateDto.LastName == null || userCreateDto.LastName == "")
             {
-                response.AddError("Last Name", "Last name cannot be empty.");
+                response.AddError("lastName", "Last name cannot be empty.");
             }
 
             if (userCreateDto.Username == null || userCreateDto.Username == "")
             {
-                response.AddError("User Name", "User name cannot be empty.");
+                response.AddError("userName", "User name cannot be empty.");
             }
 
             if (userCreateDto.Password == null || userCreateDto.Password == "")
             {
-                response.AddError("Password", "Password cannot be empty.");
+                response.AddError("password", "Password cannot be empty.");
             }
 
             if (response.HasErrors)
@@ -84,34 +122,10 @@ namespace LearningStarterServer.Controllers
             return Created("", response);
         }
 
-        [HttpGet]
-        public IActionResult Details(int id)
-        {
-            var response = new Response();
-
-            var user = _context.Users.FirstOrDefault(x => x.Id == id);
-
-            if(user == null)
-            {
-                response.AddError("id", "There was a problem finding the user.");
-                return NotFound(response);
-            }
-
-            var userGetDto = new UserGetDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Username = user.Username
-            };
-
-            response.Data = userGetDto;
-
-            return Ok(response);
-        }
-
-        [HttpPut]
-        public IActionResult Edit(int id, UserUpdateDto user)
+        [HttpPut("{id}")]
+        public IActionResult Edit(
+            [FromRoute] int id, 
+            [FromBody] UserUpdateDto user)
         {
             var response = new Response();
 
@@ -131,22 +145,22 @@ namespace LearningStarterServer.Controllers
 
             if (user.FirstName == null || user.FirstName == "")
             {
-                response.AddError("First Name", "First name cannot be empty.");
+                response.AddError("firstName", "First name cannot be empty.");
             }
 
             if (user.LastName == null || user.LastName == "")
             {
-                response.AddError("Last Name", "Last name cannot be empty.");
+                response.AddError("lirstName", "Last name cannot be empty.");
             }
 
             if (user.Username == null || user.Username == "")
             {
-                response.AddError("User Name", "User name cannot be empty.");
+                response.AddError("userName", "User name cannot be empty.");
             }
 
             if (user.Password == null || user.Password == "")
             {
-                response.AddError("Password", "Password cannot be empty.");
+                response.AddError("password", "Password cannot be empty.");
             }
 
             if (response.HasErrors)
@@ -174,7 +188,7 @@ namespace LearningStarterServer.Controllers
             return Ok(response);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
             var response = new Response();
@@ -189,8 +203,6 @@ namespace LearningStarterServer.Controllers
 
             _context.Users.Remove(user);
             _context.SaveChanges();
-
-            response.Data = true;
 
             return Ok(response);
         }

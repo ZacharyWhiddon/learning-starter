@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using LearningStarter.Common;
 using LearningStarter.Data;
 using LearningStarter.Entities;
+using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LearningStarter.Controllers
@@ -42,7 +42,8 @@ namespace LearningStarter.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public IActionResult GetById(
+            [FromRoute] int id)
         {
             var response = new Response();
 
@@ -79,45 +80,112 @@ namespace LearningStarter.Controllers
             _dataContext.OrderProducts.Add(orderProductToCreate);
             _dataContext.SaveChanges();
 
+            var product = _dataContext
+                .Set<Product>()
+                .FirstOrDefault(x => x.Id == orderProductToCreate.ProductId);
+
+            if (product == null)
+            {
+                response.AddError("ProductId", "Product not found.");
+                return NotFound(response);
+            }
+
+            var order = _dataContext
+                .Set<Order>()
+                .FirstOrDefault(x => x.Id == orderProductToCreate.OrderId);
+
+            if (order == null)
+            {
+                response.AddError("OrderId", "Order not found.");
+                return NotFound(response);
+            }
+
+            var user = _dataContext
+                .Set<User>()
+                .FirstOrDefault(x => x.Id == order.UserId);
+
+            if (user == null)
+            {
+                response.AddError("User", "User for this Order not found.");
+                return NotFound(response);
+            }
+
             var orderProductGetDto = new OrderProductGetDto
             {
                 Id = orderProductToCreate.Id,
                 OrderId = orderProductToCreate.OrderId,
                 ProductId = orderProductToCreate.ProductId,
-                ProductName = orderProductToCreate.Product.Name,
-                ProductPrice = orderProductToCreate.Product.Price,
-                UserFirstName = orderProductToCreate.Order.User.FirstName,
-                UserLastName = orderProductToCreate.Order.User.LastName,
+                ProductName = product.Name,
+                ProductPrice = product.Price,
+                UserFirstName = user.FirstName,
+                UserLastName = user.LastName,
             };
 
             response.Data = orderProductGetDto;
             return Ok(response);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public IActionResult Update(
+            [FromRoute] int id,
             [FromBody] OrderProductUpdateDto orderProductUpdateDto)
         {
             var response = new Response();
 
             var orderProductToUpdate = _dataContext
                 .OrderProducts
-                .FirstOrDefault(x => x.Id == orderProductUpdateDto.Id);
+                .FirstOrDefault(x => x.Id == id);
+
+            if (orderProductToUpdate == null)
+            {
+                response.AddError("id", "Order Product not found.");
+                return NotFound(response);
+            }
 
             orderProductToUpdate.OrderId = orderProductUpdateDto.OrderId;
             orderProductToUpdate.ProductId = orderProductUpdateDto.ProductId;
 
             _dataContext.SaveChanges();
 
+            var product = _dataContext
+                .Set<Product>()
+                .FirstOrDefault(x => x.Id == orderProductUpdateDto.ProductId);
+
+            if (product == null)
+            {
+                response.AddError("ProductId", "Product not found.");
+                return NotFound(response);
+            }
+
+            var order = _dataContext
+                .Set<Order>()
+                .FirstOrDefault(x => x.Id == orderProductUpdateDto.OrderId);
+
+            if (order == null)
+            {
+                response.AddError("OrderId", "Order not found.");
+                return NotFound(response);
+            }
+
+            var user = _dataContext
+                .Set<User>()
+                .FirstOrDefault(x => x.Id == order.UserId);
+
+            if (user == null)
+            {
+                response.AddError("User", "User for this Order not found.");
+                return NotFound(response);
+            }
+
             var orderProductGetDto = new OrderProductGetDto
             {
                 Id = orderProductToUpdate.Id,
                 OrderId = orderProductToUpdate.OrderId,
                 ProductId = orderProductToUpdate.ProductId,
-                ProductName = orderProductToUpdate.Product.Name,
-                ProductPrice = orderProductToUpdate.Product.Price,
-                UserFirstName = orderProductToUpdate.Order.User.FirstName,
-                UserLastName = orderProductToUpdate.Order.User.LastName,
+                ProductName = product.Name,
+                ProductPrice = product.Price,
+                UserFirstName = user.FirstName,
+                UserLastName = user.LastName,
             };
 
             response.Data = orderProductGetDto;
@@ -132,6 +200,11 @@ namespace LearningStarter.Controllers
             var orderProductToDelete = _dataContext
                 .OrderProducts
                 .FirstOrDefault(x => x.Id == id);
+
+            if (orderProductToDelete == null)
+            {
+                return Ok();
+            }
 
             _dataContext.OrderProducts.Remove(orderProductToDelete);
             _dataContext.SaveChanges();

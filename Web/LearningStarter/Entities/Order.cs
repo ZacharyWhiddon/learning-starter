@@ -21,7 +21,6 @@ namespace LearningStarter.Entities
 
     public class OrderUpdateDto
     {
-        public int Id { get; set; }
         public int PreparationStepId { get; set; }
     }
 

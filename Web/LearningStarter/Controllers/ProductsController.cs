@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using LearningStarter.Common;
 using LearningStarter.Data;
 using LearningStarter.Entities;
@@ -40,11 +39,12 @@ namespace LearningStarter.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public IActionResult GetById(
+            [FromRoute] int id)
         {
             var response = new Response();
 
-            var productsToReturn = _dataContext
+            var productToReturn = _dataContext
                 .Products
                 .Select(x => new ProductGetDto
                 {
@@ -56,7 +56,13 @@ namespace LearningStarter.Controllers
                 })
                 .FirstOrDefault(x => x.Id == id);
 
-            response.Data = productsToReturn;
+            if (productToReturn == null)
+            {
+                response.AddError("id", "Product not found.");
+                return NotFound(response);
+            }
+
+            response.Data = productToReturn;
             return Ok(response);
         }
 
@@ -66,12 +72,37 @@ namespace LearningStarter.Controllers
         {
             var response = new Response();
 
+            if (productCreateDto.Name == null || productCreateDto.Name.Trim() == "")
+            {
+                response.AddError("Name", "Name cannot be empty.");
+            }
+
+            if (productCreateDto.Price > 0)
+            {
+                response.AddError("Price", "Price must be greater than 0.");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
+
             var productToCreate = new Product
             {
                 Name = productCreateDto.Name,
                 Price = productCreateDto.Price,
                 ProductTypeId = productCreateDto.ProductTypeId,
             };
+
+            var productType = _dataContext
+                .Set<ProductType>()
+                .FirstOrDefault(x => x.Id == productToCreate.ProductTypeId);
+
+            if (productType == null)
+            {
+                response.AddError("ProductTypeId", "Product Type not found.");
+                return NotFound(response);
+            }
 
             _dataContext.Products.Add(productToCreate);
             _dataContext.SaveChanges();
@@ -82,26 +113,58 @@ namespace LearningStarter.Controllers
                 ProductTypeId = productToCreate.ProductTypeId,
                 Name = productToCreate.Name,
                 Price = productToCreate.Price,
-                ProductTypeName = productToCreate.ProductType.Name,
+                ProductTypeName = productType.Name,
             };
 
             response.Data = productGetDto;
             return Ok(response);
         }
 
-        [HttpPut]
+        [HttpPut("{id}")]
         public IActionResult Update(
+            [FromRoute] int id,
             [FromBody] ProductUpdateDto productUpdateDto)
         {
             var response = new Response();
 
+            if (productUpdateDto.Name == null || productUpdateDto.Name.Trim() == "")
+            {
+                response.AddError("Name", "Name cannot be empty.");
+            }
+
+            if (productUpdateDto.Price > 0)
+            {
+                response.AddError("Price", "Price must be greater than 0.");
+            }
+
+            if (response.HasErrors)
+            {
+                return BadRequest(response);
+            }
+
             var productToUpdate = _dataContext
                 .Products
-                .FirstOrDefault(x => x.Id == productUpdateDto.Id);
+                .FirstOrDefault(x => x.Id == id);
+
+            if (productToUpdate == null)
+            {
+                response.AddError("id", "Product not found.");
+                return NotFound(response);
+            }
 
             productToUpdate.Name = productUpdateDto.Name;
             productToUpdate.Price = productUpdateDto.Price;
             productToUpdate.ProductTypeId = productUpdateDto.ProductTypeId;
+
+            var productType = _dataContext
+                .Set<ProductType>()
+                .FirstOrDefault(x => x.Id == productToUpdate.ProductTypeId);
+
+            if (productType == null)
+            {
+                response.AddError("id", "Product Type not found.");
+                return NotFound(response);
+            }
 
             _dataContext.SaveChanges();
 
@@ -111,7 +174,7 @@ namespace LearningStarter.Controllers
                 ProductTypeId = productToUpdate.ProductTypeId,
                 Name = productToUpdate.Name,
                 Price = productToUpdate.Price,
-                ProductTypeName = productToUpdate.ProductType.Name,
+                ProductTypeName = productType.Name,
             };
 
             response.Data = productGetDto;
@@ -119,13 +182,19 @@ namespace LearningStarter.Controllers
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete(
+            [FromRoute] int id)
         {
             var response = new Response();
 
             var productToDelete = _dataContext
                 .Products
                 .FirstOrDefault(x => x.Id == id);
+
+            if (productToDelete == null)
+            {
+                return Ok();
+            }
 
             var orderProductsToDelete = _dataContext
                 .OrderProducts
