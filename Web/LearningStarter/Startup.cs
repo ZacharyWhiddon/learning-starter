@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LearningStarter.Data;
 using LearningStarter.Entities;
-using LearningStarterServer.Data;
-using LearningStarterServer.Services;
+using LearningStarter.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,6 +41,7 @@ namespace LearningStarter
 
             services.AddDbContext<DataContext>(options =>
             {
+                // options.UseInMemoryDatabase("FooBar");
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
@@ -89,6 +90,9 @@ namespace LearningStarter
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, DataContext dataContext)
         {
+            dataContext.Database.EnsureDeleted();
+            dataContext.Database.EnsureCreated();
+            
             app.UseHsts();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -130,34 +134,19 @@ namespace LearningStarter
                 }
             });
 
-            dataContext.Database.Migrate();
-
             var numUsers = dataContext.Users.Count();
-            var numClasses = dataContext.Classes.Count();
-            var seededUser = new LearningStarterServer.Entities.User
-            {
-                FirstName = "Seeded",
-                LastName = "User",
-                Username = "admin",
-                Password = "password"
-            };
 
             if (numUsers == 0)
             {
-
-                dataContext.Users.Add(seededUser);
-                dataContext.SaveChanges();
-            }
-
-            if (numClasses == 0)
-            {
-                var user = dataContext.Users.First();
-                dataContext.Classes.Add(new Class
+                var seededUser = new User
                 {
-                    Capacity = 20,
-                    Subject = "Computer Science",
-                    User = user,
-                });
+                    FirstName = "Seeded",
+                    LastName = "User",
+                    Username = "admin",
+                    Password = "password"
+                };
+                
+                dataContext.Users.Add(seededUser);
                 dataContext.SaveChanges();
             }
         }

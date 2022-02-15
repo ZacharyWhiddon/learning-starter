@@ -1,4 +1,4 @@
-﻿namespace LearningStarterServer.Common
+﻿namespace LearningStarter.Common
 {
     public class Error
     {

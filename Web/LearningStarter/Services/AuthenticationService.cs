@@ -1,14 +1,14 @@
 ﻿using System;
-using LearningStarterServer.Entities;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using LearningStarter.Data;
+using LearningStarter.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using LearningStarterServer.Data;
+using Microsoft.AspNetCore.Http;
 
-namespace LearningStarterServer.Services
+namespace LearningStarter.Services
 {
     public interface IAuthenticationService
     {
