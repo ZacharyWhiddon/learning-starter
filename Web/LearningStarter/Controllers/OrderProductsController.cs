@@ -2,7 +2,6 @@
 using LearningStarter.Common;
 using LearningStarter.Data;
 using LearningStarter.Entities;
-using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LearningStarter.Controllers
@@ -86,7 +85,7 @@ namespace LearningStarter.Controllers
 
             if (product == null)
             {
-                response.AddError("ProductId", "Product not found.");
+                response.AddError("productId", "Product not found.");
                 return NotFound(response);
             }
 
@@ -96,7 +95,7 @@ namespace LearningStarter.Controllers
 
             if (order == null)
             {
-                response.AddError("OrderId", "Order not found.");
+                response.AddError("orderId", "Order not found.");
                 return NotFound(response);
             }
 
@@ -106,7 +105,7 @@ namespace LearningStarter.Controllers
 
             if (user == null)
             {
-                response.AddError("User", "User for this Order not found.");
+                response.AddError("user", "User for this Order not found.");
                 return NotFound(response);
             }
 
@@ -153,7 +152,7 @@ namespace LearningStarter.Controllers
 
             if (product == null)
             {
-                response.AddError("ProductId", "Product not found.");
+                response.AddError("productId", "Product not found.");
                 return NotFound(response);
             }
 
@@ -163,7 +162,7 @@ namespace LearningStarter.Controllers
 
             if (order == null)
             {
-                response.AddError("OrderId", "Order not found.");
+                response.AddError("orderId", "Order not found.");
                 return NotFound(response);
             }
 
@@ -173,7 +172,7 @@ namespace LearningStarter.Controllers
 
             if (user == null)
             {
-                response.AddError("User", "User for this Order not found.");
+                response.AddError("user", "User for this Order not found.");
                 return NotFound(response);
             }
 

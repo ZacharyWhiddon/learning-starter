@@ -1,5 +1,4 @@
 ﻿using LearningStarter.Entities;
-using LearningStarterServer.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearningStarter.Data
@@ -12,7 +11,6 @@ namespace LearningStarter.Data
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Class> Classes { get; set; }
         public DbSet<ProductType> ProductTypes { get; set; }
         public DbSet<PreparationStep> PreparationSteps { get; set; }
         public DbSet<Order> Orders { get; set; }
@@ -36,18 +34,6 @@ namespace LearningStarter.Data
 
             modelBuilder.Entity<User>()
                 .Property(x => x.Password)
-                .IsRequired();
-
-            modelBuilder.Entity<Class>()
-                .Property(x => x.Capacity)
-                .IsRequired();
-
-            modelBuilder.Entity<Class>()
-                .Property(x => x.Subject)
-                .IsRequired();
-
-            modelBuilder.Entity<Class>()
-                .Property(x => x.UserId)
                 .IsRequired();
 
         }

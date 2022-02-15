@@ -3,7 +3,6 @@ using System.Linq;
 using LearningStarter.Common;
 using LearningStarter.Data;
 using LearningStarter.Entities;
-using LearningStarterServer.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -92,7 +91,7 @@ namespace LearningStarter.Controllers
 
             if (preparationStep == null)
             {
-                response.AddError("PreparationStepId", "Preparation Step not found.");
+                response.AddError("preparationStepId", "Preparation Step not found.");
                 return NotFound(response);
             }
 
@@ -102,7 +101,7 @@ namespace LearningStarter.Controllers
 
             if (user == null)
             {
-                response.AddError("UserId", "User not found.");
+                response.AddError("userId", "User not found.");
                 return NotFound(response);
             }
 
@@ -149,7 +148,7 @@ namespace LearningStarter.Controllers
 
             if (preparationStep == null)
             {
-                response.AddError("PreparationStepId", "Preparation Step not found.");
+                response.AddError("preparationStepId", "Preparation Step not found.");
                 return NotFound(response);
             }
 
@@ -159,7 +158,7 @@ namespace LearningStarter.Controllers
 
             if (user == null)
             {
-                response.AddError("UserId", "User not found.");
+                response.AddError("userId", "User not found.");
                 return NotFound(response);
             }
 

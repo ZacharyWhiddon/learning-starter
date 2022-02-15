@@ -1,5 +1,4 @@
 ﻿using System;
-using LearningStarterServer.Entities;
 
 namespace LearningStarter.Entities
 {

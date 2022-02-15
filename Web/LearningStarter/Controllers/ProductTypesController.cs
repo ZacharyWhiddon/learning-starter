@@ -68,7 +68,7 @@ namespace LearningStarter.Controllers
 
             if (productTypeCreateDto.Name == null || productTypeCreateDto.Name == "")
             {
-                response.AddError("Name", "Name must not be empty.");
+                response.AddError("name", "Name must not be empty.");
             }
 
             if (response.HasErrors)
@@ -103,7 +103,7 @@ namespace LearningStarter.Controllers
 
             if (productTypeUpdateDto.Name == null || productTypeUpdateDto.Name == "")
             {
-                response.AddError("Name", "Name must not be empty.");
+                response.AddError("name", "Name must not be empty.");
             }
 
             if (response.HasErrors)

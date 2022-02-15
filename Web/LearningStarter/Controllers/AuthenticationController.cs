@@ -1,10 +1,10 @@
 ﻿using LearningStarter.Common;
-using LearningStarterServer.Common;
-using LearningStarterServer.Services;
+using LearningStarter.Entities;
+using LearningStarter.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LearningStarterServer.Controllers
+namespace LearningStarter.Controllers
 {
     [ApiController]
     [Route("/api")]
@@ -57,7 +57,15 @@ namespace LearningStarterServer.Controllers
                 return NotFound(response);
             }
 
-            response.Data = user;
+            var userGetDto = new UserGetDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Username = user.Username
+            };
+
+            response.Data = userGetDto;
 
             return Ok(response);
         }

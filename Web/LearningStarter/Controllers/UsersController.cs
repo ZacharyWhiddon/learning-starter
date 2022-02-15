@@ -1,14 +1,10 @@
-﻿using LearningStarterServer.Common;
-using LearningStarterServer.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using LearningStarter.Common;
 using LearningStarter.Data;
-using Microsoft.EntityFrameworkCore;
+using LearningStarter.Entities;
+using Microsoft.AspNetCore.Mvc;
 
-namespace LearningStarterServer.Controllers
+namespace LearningStarter.Controllers
 {
     [ApiController]
     [Route("api/users")]

@@ -74,12 +74,12 @@ namespace LearningStarter.Controllers
 
             if (productCreateDto.Name == null || productCreateDto.Name.Trim() == "")
             {
-                response.AddError("Name", "Name cannot be empty.");
+                response.AddError("name", "Name cannot be empty.");
             }
 
             if (productCreateDto.Price > 0)
             {
-                response.AddError("Price", "Price must be greater than 0.");
+                response.AddError("price", "Price must be greater than 0.");
             }
 
             if (response.HasErrors)
@@ -100,7 +100,7 @@ namespace LearningStarter.Controllers
 
             if (productType == null)
             {
-                response.AddError("ProductTypeId", "Product Type not found.");
+                response.AddError("productTypeId", "Product Type not found.");
                 return NotFound(response);
             }
 
@@ -129,12 +129,12 @@ namespace LearningStarter.Controllers
 
             if (productUpdateDto.Name == null || productUpdateDto.Name.Trim() == "")
             {
-                response.AddError("Name", "Name cannot be empty.");
+                response.AddError("name", "Name cannot be empty.");
             }
 
             if (productUpdateDto.Price > 0)
             {
-                response.AddError("Price", "Price must be greater than 0.");
+                response.AddError("price", "Price must be greater than 0.");
             }
 
             if (response.HasErrors)

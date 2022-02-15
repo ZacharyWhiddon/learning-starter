@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LearningStarter.Data;
 using LearningStarter.Entities;
-using LearningStarterServer.Services;
+using LearningStarter.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -135,31 +135,18 @@ namespace LearningStarter
             });
 
             var numUsers = dataContext.Users.Count();
-            var numClasses = dataContext.Classes.Count();
-            var seededUser = new LearningStarterServer.Entities.User
-            {
-                FirstName = "Seeded",
-                LastName = "User",
-                Username = "admin",
-                Password = "password"
-            };
 
             if (numUsers == 0)
             {
-
-                dataContext.Users.Add(seededUser);
-                dataContext.SaveChanges();
-            }
-
-            if (numClasses == 0)
-            {
-                var user = dataContext.Users.First();
-                dataContext.Classes.Add(new Class
+                var seededUser = new User
                 {
-                    Capacity = 20,
-                    Subject = "Computer Science",
-                    User = user,
-                });
+                    FirstName = "Seeded",
+                    LastName = "User",
+                    Username = "admin",
+                    Password = "password"
+                };
+                
+                dataContext.Users.Add(seededUser);
                 dataContext.SaveChanges();
             }
         }

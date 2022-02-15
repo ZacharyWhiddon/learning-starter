@@ -68,7 +68,7 @@ namespace LearningStarter.Controllers
 
             if (preparationStepCreateDto.Name == null || preparationStepCreateDto.Name == "")
             {
-                response.AddError("Name", "Name must not be empty");
+                response.AddError("name", "Name must not be empty");
             }
 
             if (response.HasErrors)
@@ -103,7 +103,7 @@ namespace LearningStarter.Controllers
 
             if (preparationStepUpdateDto.Name == null || preparationStepUpdateDto.Name == "")
             {
-                response.AddError("Name", "Name must not be empty");
+                response.AddError("name", "Name must not be empty");
             }
 
             if (response.HasErrors)
