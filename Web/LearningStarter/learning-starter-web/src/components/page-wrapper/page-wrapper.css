@@ -1,0 +1,19 @@
+.content {
+  max-height: 100vh;
+}
+
+.main-content {
+  display: flex;
+  flex: 1 1 0%;
+  overflow-x: auto;
+  position: relative;
+  background: #fff;
+  border: solid 1px #b4c5ce;
+  box-shadow: rgb(87, 99, 105) -1px 2px 4px -3px;
+  border-top: none;
+  flex-direction: column;
+  padding-top: 8px;
+  /* full content height - header height */
+  height: calc(100vh - 60px) !important;
+  overflow-y: auto;
+}
