@@ -5,16 +5,12 @@ import { NotFoundPage } from "../pages/not-found";
 import { useUser } from "../authentication/use-auth";
 import { UserPage } from "../pages/user-page/user-page";
 import { PageWrapper } from "../components/page-wrapper/page-wrapper";
-import { ClassListing } from "../pages/classes-page/listing-page/class-listing";
-import { ClassCreatePage } from "../pages/classes-page/create-page/class-create";
 
 //This is where you will declare all of your routes (the ones that show up in the search bar)
 export const routes = {
   root: `/`,
   home: `/home`,
   user: `/user`,
-  classes: `/classes`,
-  classesCreate: `/classes/create`,
 };
 
 //This is where you will tell React Router what to render when the path matches the route specified.
@@ -33,12 +29,6 @@ export const Routes = () => {
           {/* When path === /iser render UserPage */}
           <Route path={routes.user} exact>
             <UserPage />
-          </Route>
-          <Route path={routes.classes} exact>
-            <ClassListing />
-          </Route>
-          <Route path={routes.classesCreate} exact>
-            <ClassCreatePage />
           </Route>
           {/* Going to route "localhost:5001/" will go to homepage */}
           <Route path={routes.root} exact>

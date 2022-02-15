@@ -15,16 +15,9 @@ export type AnyObject = {
   [index: string]: any;
 };
 
-export type User = {
+export type UserDto = {
+  id: number;
   firstName: string;
   lastName: string;
   userName: string;
-};
-
-export type ClassDto = {
-  id: number;
-  capacity: number;
-  subject: string;
-  userId: number;
-  user: User;
 };

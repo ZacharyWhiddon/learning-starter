@@ -3,12 +3,12 @@ import React, { useMemo } from "react";
 import { NavLink, NavLinkProps } from "react-router-dom";
 import { Dropdown, Image, Menu, Icon, SemanticICONS } from "semantic-ui-react";
 import logo from "../../assets/logo.png";
-import { User } from "../../constants/types";
+import { UserDto } from "../../constants/types";
 import { logoutUser } from "../../authentication/authentication-services";
 import { routes } from "../../routes/config";
 
 type PrimaryNavigationProps = {
-  user?: User;
+  user?: UserDto;
 };
 
 type NavigationItem = {
@@ -45,27 +45,6 @@ const DesktopNavigation = () => {
         nav: {
           to: routes.user,
         },
-      },
-      {
-        text: "Classes",
-        children: [
-          {
-            text: "Listing",
-            icon: "clipboard list",
-            hide: false,
-            nav: {
-              to: routes.classes,
-            },
-          },
-          {
-            text: "Create",
-            icon: "plus square",
-            hide: false,
-            nav: {
-              to: routes.classesCreate,
-            },
-          },
-        ],
       },
     ];
   }, []);

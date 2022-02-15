@@ -7,7 +7,7 @@ import { useSubscription } from "../hooks/use-subscription";
 import { useProduce } from "../hooks/use-produce";
 import { Error } from "../constants/types";
 import { LoginPage } from "../pages/login-page/login-page";
-import { User } from "../constants/types";
+import { UserDto } from "../constants/types";
 import { StatusCodes } from "../constants/status-codes";
 
 const currentUser = "currentUser";
@@ -23,7 +23,7 @@ const removeUserItem = () => {
 };
 
 type AuthState = {
-  user: User | null;
+  user: UserDto | null;
   errors: Error[];
   redirectUrl?: string | null;
 };
@@ -122,15 +122,10 @@ export const AuthProvider = (props: any) => {
   return <AuthContext.Provider value={state} {...props} />;
 };
 
-type UserDto = User & {
-  userName: string;
-  password: string;
-};
-
 type GetUserResponse = ApiResponse<UserDto>;
 
 //This function is available anywhere wrapped inside of the <AuthProvider>.  See Config.tsx for example.
-export function useUser(): User {
+export function useUser(): UserDto {
   const { user } = useContext(AuthContext);
   if (!user) {
     throw new Error(`useUser must be used within an authenticated app`);
@@ -139,7 +134,9 @@ export function useUser(): User {
 }
 
 //This is used to map an object (any type) to a User entity.
-export const mapUser = (user: any): Omit<User, "userName"> => ({
+export const mapUser = (user: any): UserDto => ({
+  id: user.id,
   firstName: user.firstName,
   lastName: user.lastName,
+  userName: user.userName,
 });
