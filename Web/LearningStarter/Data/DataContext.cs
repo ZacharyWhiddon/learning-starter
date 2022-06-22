@@ -29,7 +29,6 @@ namespace LearningStarter.Data
             modelBuilder.Entity<User>()
                 .Property(x => x.Password)
                 .IsRequired();
-
         }
     }
 }
