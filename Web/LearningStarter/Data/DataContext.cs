@@ -11,9 +11,6 @@ namespace LearningStarter.Data
         }
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Workout> Workouts { get; set; }
-        public DbSet<WorkoutType> WorkoutTypes { get; set; }
-        public DbSet<UserWorkout> UserWorkouts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
