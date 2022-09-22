@@ -1,14 +1,13 @@
-﻿namespace LearningStarter.Common
-{
-    public class Error
-    {
-        public string Property { get; set; }
-        public string Message { get; set; }
+﻿namespace LearningStarter.Common;
 
-        public Error(string property, string message)
-        {
-            Property = property;
-            Message = message;
-        }
+public class Error
+{
+    public string Property { get; set; }
+    public string Message { get; set; }
+
+    public Error(string property, string message)
+    {
+        Property = property;
+        Message = message;
     }
 }
