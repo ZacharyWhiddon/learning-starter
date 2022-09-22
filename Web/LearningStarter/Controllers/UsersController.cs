@@ -2,6 +2,7 @@
 using LearningStarter.Common;
 using LearningStarter.Data;
 using LearningStarter.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LearningStarter.Controllers
@@ -11,10 +12,13 @@ namespace LearningStarter.Controllers
     public class UsersController : ControllerBase
     {
         private readonly DataContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public UsersController(DataContext context)
+        public UsersController(DataContext context,
+            UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -29,7 +33,7 @@ namespace LearningStarter.Controllers
                     Id = x.Id,
                     FirstName = x.FirstName,
                     LastName = x.LastName,
-                    Username = x.Username
+                    UserName = x.UserName
                 })
                 .ToList();
 
@@ -55,7 +59,7 @@ namespace LearningStarter.Controllers
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Username = user.Username
+                UserName = user.UserName,
             };
 
             response.Data = userGetDto;
@@ -69,22 +73,22 @@ namespace LearningStarter.Controllers
         {
             var response = new Response();
 
-            if (userCreateDto.FirstName == null || userCreateDto.FirstName == "")
+            if (string.IsNullOrEmpty(userCreateDto.FirstName))
             {
                 response.AddError("firstName", "First name cannot be empty.");
             }
 
-            if (userCreateDto.LastName == null || userCreateDto.LastName == "")
+            if (string.IsNullOrEmpty(userCreateDto.LastName))
             {
                 response.AddError("lastName", "Last name cannot be empty.");
             }
 
-            if (userCreateDto.Username == null || userCreateDto.Username == "")
+            if (string.IsNullOrEmpty(userCreateDto.UserName))
             {
                 response.AddError("userName", "User name cannot be empty.");
             }
 
-            if (userCreateDto.Password == null || userCreateDto.Password == "")
+            if (string.IsNullOrEmpty(userCreateDto.Password))
             {
                 response.AddError("password", "Password cannot be empty.");
             }
@@ -98,11 +102,10 @@ namespace LearningStarter.Controllers
             {
                 FirstName = userCreateDto.FirstName,
                 LastName = userCreateDto.LastName,
-                Username = userCreateDto.Username,
-                Password = userCreateDto.Password,
+                UserName = userCreateDto.UserName,
             };
 
-            _context.Users.Add(userToCreate);
+            _userManager.CreateAsync(userToCreate, userCreateDto.Password);
             _context.SaveChanges();
 
             var userGetDto = new UserGetDto
@@ -110,7 +113,7 @@ namespace LearningStarter.Controllers
                 Id = userToCreate.Id,
                 FirstName = userToCreate.FirstName,
                 LastName = userToCreate.LastName,
-                Username = userToCreate.Username
+                UserName = userToCreate.UserName
             };
 
             response.Data = userGetDto;
@@ -121,11 +124,11 @@ namespace LearningStarter.Controllers
         [HttpPut("{id}")]
         public IActionResult Edit(
             [FromRoute] int id, 
-            [FromBody] UserUpdateDto user)
+            [FromBody] UserUpdateDto userUpdateDto)
         {
             var response = new Response();
 
-            if (user == null)
+            if (userUpdateDto == null)
             {
                 response.AddError("id", "There was a problem editing the user.");
                 return NotFound(response);
@@ -139,22 +142,22 @@ namespace LearningStarter.Controllers
                 return NotFound(response);
             }
 
-            if (user.FirstName == null || user.FirstName == "")
+            if (string.IsNullOrEmpty(userUpdateDto.FirstName))
             {
                 response.AddError("firstName", "First name cannot be empty.");
             }
 
-            if (user.LastName == null || user.LastName == "")
+            if (string.IsNullOrEmpty(userUpdateDto.LastName))
             {
-                response.AddError("lirstName", "Last name cannot be empty.");
+                response.AddError("lastName", "Last name cannot be empty.");
             }
 
-            if (user.Username == null || user.Username == "")
+            if (string.IsNullOrEmpty(userUpdateDto.UserName))
             {
                 response.AddError("userName", "User name cannot be empty.");
             }
 
-            if (user.Password == null || user.Password == "")
+            if (string.IsNullOrEmpty(userUpdateDto.Password))
             {
                 response.AddError("password", "Password cannot be empty.");
             }
@@ -164,10 +167,9 @@ namespace LearningStarter.Controllers
                 return BadRequest(response);
             }
 
-            userToEdit.FirstName = user.FirstName;
-            userToEdit.LastName = user.LastName;
-            userToEdit.Username = user.Username;
-            userToEdit.Password = user.Password;
+            userToEdit.FirstName = userUpdateDto.FirstName;
+            userToEdit.LastName = userUpdateDto.LastName;
+            userToEdit.UserName = userUpdateDto.UserName;
 
             _context.SaveChanges();
 
@@ -176,11 +178,10 @@ namespace LearningStarter.Controllers
                 Id = userToEdit.Id,
                 FirstName = userToEdit.FirstName,
                 LastName = userToEdit.LastName,
-                Username = userToEdit.Username
+                UserName = userToEdit.UserName,
             };
 
             response.Data = userGetDto;
-
             return Ok(response);
         }
 

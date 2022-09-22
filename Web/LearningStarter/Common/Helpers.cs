@@ -15,7 +15,7 @@ namespace LearningStarter.Common
                 Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                Username = user.Username,
+                UserName = user.UserName,
             };
 
             return userDto;

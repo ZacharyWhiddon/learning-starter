@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using IdentityModel;
 using LearningStarter.Data;
 using LearningStarter.Entities;
 using LearningStarter.Services;
@@ -8,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,11 +43,24 @@ namespace LearningStarter
 
             services.AddDbContext<DataContext>(options =>
             {
-                // options.UseInMemoryDatabase("FooBar");
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
 
-            //TODO
+            services.AddIdentity<User, Role>(
+                    options =>
+                    {
+                        options.SignIn.RequireConfirmedAccount = false;
+                        options.Password.RequireNonAlphanumeric = false;
+                        options.Password.RequireLowercase = false;
+                        options.Password.RequireUppercase = false;
+                        options.Password.RequireDigit = false;
+                        options.Password.RequiredLength = 8;
+                        options.ClaimsIdentity.UserIdClaimType = JwtClaimTypes.Subject;
+                        options.ClaimsIdentity.UserNameClaimType = JwtClaimTypes.Name;
+                        options.ClaimsIdentity.RoleClaimType = JwtClaimTypes.Role;
+                    })
+                .AddEntityFrameworkStores<DataContext>();
+
             services.AddMvc();
 
             services
@@ -111,7 +126,7 @@ namespace LearningStarter
             app.UseSwagger(options =>
             {
                 options.SerializeAsV2 = true;
-            }); ;
+            });
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
             // specifying the Swagger JSON endpoint.
@@ -133,7 +148,15 @@ namespace LearningStarter
                     spa.UseProxyToSpaDevelopmentServer("http://localhost:3001");
                 }
             });
+            
+            using var scope = app.ApplicationServices.CreateScope();
+            var userManager = scope.ServiceProvider.GetService<UserManager<User>>();
 
+            SeedUsers(dataContext, userManager).Wait();
+        }
+
+        private static async Task SeedUsers(DataContext dataContext, UserManager<User> userManager)
+        {
             var numUsers = dataContext.Users.Count();
 
             if (numUsers == 0)
@@ -142,12 +165,11 @@ namespace LearningStarter
                 {
                     FirstName = "Seeded",
                     LastName = "User",
-                    Username = "admin",
-                    Password = "password"
+                    UserName = "admin",
                 };
-                
-                dataContext.Users.Add(seededUser);
-                dataContext.SaveChanges();
+
+                await userManager.CreateAsync(seededUser, "Password");
+                await dataContext.SaveChangesAsync();
             }
         }
     }

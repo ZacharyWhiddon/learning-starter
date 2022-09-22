@@ -57,7 +57,7 @@ export const LoginPage = () => {
                   <div className="field-label">
                     <label htmlFor="userName">UserName</label>
                   </div>
-                  <Field className="field" id="username" name="username">
+                  <Field className="field" id="userName" name="userName">
                     {({ field }) => <Input {...field} />}
                   </Field>
                 </div>
