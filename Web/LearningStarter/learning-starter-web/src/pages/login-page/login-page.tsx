@@ -1,12 +1,14 @@
 import "./login-page.css";
 import axios from "axios";
-import React, { useMemo } from "react";
+import React from "react";
 import { ApiResponse } from "../../constants/types";
-import { Formik, Form, Field } from "formik";
-import { Button, Input } from "semantic-ui-react";
 import { useAsyncFn } from "react-use";
 import { PageWrapper } from "../../components/page-wrapper/page-wrapper";
 import { loginUser } from "../../authentication/authentication-services";
+import { FormErrors, useForm } from "@mantine/form";
+import { Button, Input, Text } from "@mantine/core";
+import api from "../../config/axios";
+import { showNotification } from "@mantine/notifications";
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
@@ -17,31 +19,42 @@ type LoginRequest = {
 
 type LoginResponse = ApiResponse<boolean>;
 
-type FormValues = LoginRequest;
-
 //This is a *fairly* basic form
 //The css used in here is a good example of how flexbox works in css
 //For more info on flexbox: https://css-tricks.com/snippets/css/a-guide-to-flexbox/
 export const LoginPage = () => {
-  const initialValues = useMemo<FormValues>(
-    () => ({
+  const form = useForm<LoginRequest>({
+    initialValues: {
       userName: "",
       password: "",
-    }),
-    []
-  );
+    },
+    validate: {
+      userName: (value) =>
+        value.length <= 0 ? "Username must not be empty" : null,
+      password: (value) =>
+        value.length <= 0 ? "Password must not be empty" : null,
+    },
+  });
+
   const [, submitLogin] = useAsyncFn(async (values: LoginRequest) => {
     if (baseUrl === undefined) {
       return;
     }
 
-    const response = await axios.post<LoginResponse>(
-      `${baseUrl}/api/authenticate`,
-      values
-    );
+    const response = await api.post<LoginResponse>(`/api/authenticate`, values);
+    if (response.data.hasErrors) {
+      const formErrors: FormErrors = response.data.errors.reduce(
+        (prev, curr) => {
+          Object.assign(prev, { [curr.property]: curr.message });
+          return prev;
+        },
+        {} as FormErrors
+      );
+      form.setErrors(formErrors);
+    }
 
     if (response.data.data) {
-      console.log("Successfully Logged In!");
+      showNotification({ message: "Successfully Logged In!", color: "green" });
       loginUser();
     }
   }, []);
@@ -50,33 +63,30 @@ export const LoginPage = () => {
     <PageWrapper>
       <div className="flex-box-centered-content-login-page">
         <div className="login-form">
-          <Formik initialValues={initialValues} onSubmit={submitLogin}>
-            <Form>
+          <form onSubmit={form.onSubmit(submitLogin)}>
+            <div>
               <div>
-                <div>
-                  <div className="field-label">
-                    <label htmlFor="userName">UserName</label>
-                  </div>
-                  <Field className="field" id="userName" name="userName">
-                    {({ field }) => <Input {...field} />}
-                  </Field>
+                <div className="field-label">
+                  <label htmlFor="userName">UserName</label>
                 </div>
-                <div>
-                  <div className="field-label">
-                    <label htmlFor="password">Password</label>
-                  </div>
-                  <Field className="field" id="password" name="password">
-                    {({ field }) => <Input type="password" {...field} />}
-                  </Field>
-                </div>
-                <div className="button-container-login-page">
-                  <Button className="login-button" type="submit">
-                    Login
-                  </Button>
-                </div>
+                <Input {...form.getInputProps("userName")} />
+                <Text c="red">{form.errors["userName"]}</Text>
               </div>
-            </Form>
-          </Formik>
+              <div>
+                <div className="field-label">
+                  <label htmlFor="password">Password</label>
+                </div>
+                <Input type="password" {...form.getInputProps("password")} />
+                <Text c="red">{form.errors["password"]}</Text>
+              </div>
+              <Text c="red">{form.errors[""]}</Text>
+              <div className="button-container-login-page">
+                <Button className="login-button" type="submit">
+                  Login
+                </Button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
     </PageWrapper>

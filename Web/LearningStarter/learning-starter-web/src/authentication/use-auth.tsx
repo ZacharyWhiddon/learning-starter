@@ -1,14 +1,14 @@
 import axios from "axios";
 import React, { createContext, useContext } from "react";
 import { useAsyncRetry, useAsyncFn } from "react-use";
-import { Dimmer, Loader } from "semantic-ui-react";
 import { ApiResponse } from "../constants/types";
 import { useSubscription } from "../hooks/use-subscription";
 import { useProduce } from "../hooks/use-produce";
-import { Error } from "../constants/types";
+import { ApiError } from "../constants/types";
 import { LoginPage } from "../pages/login-page/login-page";
 import { UserDto } from "../constants/types";
 import { StatusCodes } from "../constants/status-codes";
+import { Loader } from "@mantine/core";
 
 const currentUser = "currentUser";
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -24,7 +24,7 @@ const removeUserItem = () => {
 
 type AuthState = {
   user: UserDto | null;
-  errors: Error[];
+  errors: ApiError[];
   redirectUrl?: string | null;
 };
 
@@ -40,7 +40,7 @@ export const AuthProvider = (props: any) => {
   const [state, setState] = useProduce<AuthState>(INITIAL_STATE);
 
   //This is the main function for getting the user information from the database.
-  //This function gets called on every "notify("user-login") in order to fetfch the user data."
+  //This function gets called on every "notify("user-login") in order to refetch the user data."
   const fetchCurrentUser = useAsyncRetry(async () => {
     setState((draft) => {
       draft.errors = [];
@@ -105,11 +105,7 @@ export const AuthProvider = (props: any) => {
 
   //This returns a Loading screen if the API call takes a long time to get user info
   if (fetchCurrentUser.loading) {
-    return (
-      <Dimmer active inverted>
-        <Loader indeterminate />
-      </Dimmer>
-    );
+    return <Loader />;
   }
 
   //Brings unauthenticated users to the login page.

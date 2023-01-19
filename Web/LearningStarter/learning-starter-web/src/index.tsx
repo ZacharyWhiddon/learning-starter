@@ -1,15 +1,19 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import { BrowserRouter as Router } from "react-router-dom";
-import "semantic-ui-css/semantic.min.css";
 
 //This is the base level of your app.
 //This is where you would put global things (like Router)
-ReactDOM.render(
+
+const container = document.getElementById("root");
+
+// Create a root.
+const root = ReactDOM.createRoot(container as HTMLElement);
+
+root.render(
   <Router>
     <App />
-  </Router>,
-  document.getElementById("root")
+  </Router>
 );

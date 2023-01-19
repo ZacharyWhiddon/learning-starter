@@ -1,11 +1,27 @@
-import "./navigation.css";
-import React, { useMemo } from "react";
-import { NavLink, NavLinkProps } from "react-router-dom";
-import { Dropdown, Image, Menu, Icon, SemanticICONS } from "semantic-ui-react";
+import React, { useEffect, useState } from "react";
+import { routes } from "../../routes";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
+import {
+  Header,
+  Menu,
+  Image,
+  createStyles,
+  Container,
+  Group,
+  useMantineColorScheme,
+  Button,
+  Flex,
+  Avatar,
+} from "@mantine/core";
+import {
+  NAVBAR_HEIGHT,
+  NAVBAR_HEIGHT_NUMBER,
+} from "../../constants/theme-constants";
+import { NavLink, NavLinkProps, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { UserDto } from "../../constants/types";
 import { logoutUser } from "../../authentication/authentication-services";
-import { routes } from "../../routes/config";
 
 type PrimaryNavigationProps = {
   user?: UserDto;
@@ -13,7 +29,7 @@ type PrimaryNavigationProps = {
 
 type NavigationItem = {
   text: string;
-  icon?: SemanticICONS | undefined;
+  icon?: IconProp | undefined;
   hide?: boolean;
 } & (
   | {
@@ -23,129 +39,209 @@ type NavigationItem = {
       >;
       children?: never;
     }
-  | { nav?: never; children: NavigationItem[] }
+  | { nav?: never; children: NavigationItemForceNav[] }
 );
 
-//This is where the navigation buttons are defined.
-const DesktopNavigation = () => {
-  const navigation: NavigationItem[] = useMemo(() => {
-    return [
-      {
-        text: "Home",
-        icon: "home",
-        hide: false,
-        nav: {
-          to: routes.home,
-        },
-      },
-      {
-        text: "User",
-        icon: "user",
-        hide: false,
-        nav: {
-          to: routes.user,
-        },
-      },
-    ];
-  }, []);
+export type NavigationItemForceNav = {
+  text: string;
+  icon?: IconProp | undefined;
+  hide?: boolean;
+  nav: NavLinkProps;
+  type: "external" | "next";
+};
 
-  //This is where the navigation buttons are mapped over to produce the links and such.
+const navigation: NavigationItem[] = [
+  {
+    text: "Home",
+    hide: false,
+    nav: {
+      to: routes.home,
+    },
+  },
+  {
+    text: "User",
+    hide: false,
+    nav: {
+      to: routes.user,
+    },
+  },
+];
+
+const DesktopNavigation = () => {
+  const { classes, cx } = useStyles();
+  const { pathname } = useLocation();
+  const [active, setActive] = useState(navigation[0].nav?.to.toString());
+
+  useEffect(() => {
+    setActive(pathname);
+  }, [pathname, setActive]);
+
   return (
-    <Menu
-      secondary
-      role="navigation"
-      className="desktop-navigation"
-      size="large"
-    >
-      {navigation
-        .filter((x) => !x.hide)
-        .map((x, i) => {
-          if (x.children) {
-            return (
-              <Dropdown
-                key={i}
-                trigger={
-                  <span>
-                    {x.icon && <Icon size="small" fitted name={x.icon} />}{" "}
-                    {x.text}
-                  </span>
-                }
-                pointing
-                className="link item"
-              >
-                <Dropdown.Menu>
-                  {x.children
-                    .filter((x) => !x.hide)
-                    .map((y) => {
-                      return (
-                        <Dropdown.Item
-                          key={`${y.text}`}
-                          as={NavLink}
-                          to={y.nav?.to}
-                        >
-                          {y.icon && <Icon size="small" fitted name={y.icon} />}{" "}
-                          {y.text}
-                        </Dropdown.Item>
-                      );
-                    })}
-                </Dropdown.Menu>
-              </Dropdown>
-            );
-          }
-          return (
-            <Menu.Item key={i} as={NavLink} {...x.nav}>
-              {x.icon && <Icon size="small" name={x.icon} />} {x.text}
-            </Menu.Item>
-          );
-        })}
-    </Menu>
+    <>
+      <Container px={0} className={classes.desktopNav}>
+        <Flex direction="row" align="center" className={classes.fullHeight}>
+          {navigation
+            .filter((x) => !x.hide)
+            .map((x, i) => {
+              if (x.children) {
+                return (
+                  <Menu trigger="hover" key={i}>
+                    <Menu.Target>
+                      <Button
+                        size="lg"
+                        className={classes.paddedMenuItem}
+                        variant="subtle"
+                        key={i}
+                      >
+                        {x.icon && <FontAwesomeIcon icon={x.icon} />} {x.text}
+                      </Button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {x.children
+                        .filter((x) => !x.hide)
+                        .map((y) => {
+                          return (
+                            <Menu.Item
+                              key={`${y.text}`}
+                              to={y.nav.to}
+                              component={NavLink}
+                            >
+                              <Flex direction="row">
+                                {y.icon && <FontAwesomeIcon icon={y.icon} />}{" "}
+                                {y.text}
+                              </Flex>
+                            </Menu.Item>
+                          );
+                        })}
+                    </Menu.Dropdown>
+                  </Menu>
+                );
+              }
+              return (
+                <Button
+                  size="md"
+                  component={NavLink}
+                  to={x.nav.to}
+                  className={cx(classes.paddedMenuItem, {
+                    [classes.linkActive]: active === x.nav.to,
+                  })}
+                  variant="subtle"
+                  color="blue"
+                  key={i}
+                >
+                  {x.icon && <FontAwesomeIcon icon={x.icon} />} {x.text}
+                </Button>
+              );
+            })}
+        </Flex>
+      </Container>
+    </>
   );
 };
 
-//This defines the container for all the nav stuff at the top
 export const PrimaryNavigation: React.FC<PrimaryNavigationProps> = ({
   user,
 }) => {
+  const { classes } = useStyles();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const dark = colorScheme === "dark";
   return (
-    <Menu secondary className="top-navigation">
-      <Menu.Item
-        as={user ? NavLink : ""}
-        to={routes.home}
-        className="logo-menu-item"
-      >
-        <Image size="mini" src={logo} alt="logo" className="logo" />
-      </Menu.Item>
-      {user && (
-        <>
-          <DesktopNavigation />
-          <Menu.Menu position="right">
-            <Dropdown
-              item
-              className="user-icon"
-              trigger={
-                <span
-                  className="user-icon-initial"
-                  title={`${user.firstName} ${user.lastName}`}
-                >
-                  {user.firstName.substring(0, 1).toUpperCase()}
-                  {user.lastName.substring(0, 1).toUpperCase()}
-                </span>
-              }
-              icon={null}
-            >
-              <Dropdown.Menu>
-                <Dropdown.Item
-                  onClick={async () => {
-                    logoutUser();
-                  }}
-                >
-                  Sign Out
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          </Menu.Menu>
-        </>
-      )}
-    </Menu>
+    <Header height={NAVBAR_HEIGHT_NUMBER}>
+      <Container px={20} fluid>
+        <Flex direction="row" justify="space-between" align="center">
+          <Group>
+            <Flex direction="row" align="center">
+              <NavLink to={routes.root}>
+                <Image
+                  className={classes.logo}
+                  width={60}
+                  height={50}
+                  radius="sm"
+                  withPlaceholder
+                  src={logo}
+                  alt="logo"
+                />
+              </NavLink>
+              {user && <DesktopNavigation />}
+            </Flex>
+          </Group>
+          <Group>
+            {user && (
+              <Menu>
+                <Menu.Target>
+                  <Avatar className={classes.pointer}>
+                    {user.firstName.substring(0, 1)}
+                    {user.lastName.substring(0, 1)}
+                  </Avatar>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item onClick={() => toggleColorScheme()}>
+                    {dark ? "Light mode" : "Dark mode"}
+                  </Menu.Item>
+                  <Menu.Item onClick={() => logoutUser()}>Sign Out</Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            )}
+          </Group>
+        </Flex>
+      </Container>
+    </Header>
   );
 };
+
+const useStyles = createStyles((theme) => {
+  return {
+    pointer: {
+      cursor: "pointer",
+    },
+    logo: {
+      cursor: "pointer",
+      marginRight: "5px",
+    },
+    paddedMenuItem: {
+      margin: "0px 5px 0px 5px",
+    },
+    link: {
+      display: "block",
+      lineHeight: 1,
+      padding: "8px 12px",
+      borderRadius: theme.radius.sm,
+      textDecoration: "none",
+      color:
+        theme.colorScheme === "dark"
+          ? theme.colors.dark[0]
+          : theme.colors.gray[7],
+      fontSize: theme.fontSizes.sm,
+      fontWeight: 500,
+
+      "&:hover": {
+        backgroundColor:
+          theme.colorScheme === "dark"
+            ? theme.colors.dark[6]
+            : theme.colors.gray[0],
+      },
+
+      [theme.fn.smallerThan("md")]: {
+        borderRadius: 0,
+        padding: theme.spacing.md,
+      },
+    },
+
+    linkActive: {
+      "&, &:hover": {
+        backgroundColor: theme.fn.variant({
+          variant: "light",
+          color: theme.primaryColor,
+        }).background,
+        color: theme.fn.variant({ variant: "light", color: theme.primaryColor })
+          .color,
+      },
+    },
+    desktopNav: {
+      height: NAVBAR_HEIGHT,
+    },
+    fullHeight: {
+      height: "100%",
+    },
+  };
+});
