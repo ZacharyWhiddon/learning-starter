@@ -23,7 +23,7 @@ const subdirectory = process.env.REACT_APP_SUBDIRECTORY;
 const host = `${window.location.protocol}//${window.location.host}`;
 const appRoot = `${host}${subdirectory}`;
 
-export const Env: Env = {
+export const EnvVars: Env = {
   isProductionBuild: process.env.NODE_ENV === "production",
   publicUrl: process.env.PUBLIC_URL,
 

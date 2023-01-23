@@ -1,6 +1,3 @@
-import React from "react";
-import "./App.css";
-import "./styles/global.css";
 import { Routes } from "./routes/config";
 import { AuthProvider } from "./authentication/use-auth";
 import {
@@ -32,7 +29,7 @@ function App() {
         withGlobalStyles
         withNormalizeCSS
       >
-        <NotificationsProvider position="top-right" autoClose={4000}>
+        <NotificationsProvider position="top-right" autoClose={3000} limit={5}>
           <Container fluid px={0} className="App">
             <AuthProvider>
               <Routes />

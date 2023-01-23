@@ -12,6 +12,7 @@ import {
   useMantineColorScheme,
   Button,
   Flex,
+  Text,
   Avatar,
 } from "@mantine/core";
 import {
@@ -21,7 +22,7 @@ import {
 import { NavLink, NavLinkProps, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { UserDto } from "../../constants/types";
-import { logoutUser } from "../../authentication/authentication-services";
+import { useAuth } from "../../authentication/use-auth";
 
 type PrimaryNavigationProps = {
   user?: UserDto;
@@ -47,7 +48,6 @@ export type NavigationItemForceNav = {
   icon?: IconProp | undefined;
   hide?: boolean;
   nav: NavLinkProps;
-  type: "external" | "next";
 };
 
 const navigation: NavigationItem[] = [
@@ -88,7 +88,7 @@ const DesktopNavigation = () => {
                   <Menu trigger="hover" key={i}>
                     <Menu.Target>
                       <Button
-                        size="lg"
+                        size="md"
                         className={classes.paddedMenuItem}
                         variant="subtle"
                         key={i}
@@ -107,8 +107,10 @@ const DesktopNavigation = () => {
                               component={NavLink}
                             >
                               <Flex direction="row">
-                                {y.icon && <FontAwesomeIcon icon={y.icon} />}{" "}
-                                {y.text}
+                                <Text size="sm">
+                                  {y.icon && <FontAwesomeIcon icon={y.icon} />}{" "}
+                                  {y.text}
+                                </Text>
                               </Flex>
                             </Menu.Item>
                           );
@@ -126,7 +128,6 @@ const DesktopNavigation = () => {
                     [classes.linkActive]: active === x.nav.to,
                   })}
                   variant="subtle"
-                  color="blue"
                   key={i}
                 >
                   {x.icon && <FontAwesomeIcon icon={x.icon} />} {x.text}
@@ -143,6 +144,7 @@ export const PrimaryNavigation: React.FC<PrimaryNavigationProps> = ({
   user,
 }) => {
   const { classes } = useStyles();
+  const { logout } = useAuth();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const dark = colorScheme === "dark";
   return (
@@ -178,7 +180,7 @@ export const PrimaryNavigation: React.FC<PrimaryNavigationProps> = ({
                   <Menu.Item onClick={() => toggleColorScheme()}>
                     {dark ? "Light mode" : "Dark mode"}
                   </Menu.Item>
-                  <Menu.Item onClick={() => logoutUser()}>Sign Out</Menu.Item>
+                  <Menu.Item onClick={() => logout()}>Sign Out</Menu.Item>
                 </Menu.Dropdown>
               </Menu>
             )}
@@ -197,44 +199,22 @@ const useStyles = createStyles((theme) => {
     logo: {
       cursor: "pointer",
       marginRight: "5px",
+      paddingTop: "5px",
+      height: NAVBAR_HEIGHT,
     },
     paddedMenuItem: {
       margin: "0px 5px 0px 5px",
     },
-    link: {
-      display: "block",
-      lineHeight: 1,
-      padding: "8px 12px",
-      borderRadius: theme.radius.sm,
-      textDecoration: "none",
-      color:
-        theme.colorScheme === "dark"
-          ? theme.colors.dark[0]
-          : theme.colors.gray[7],
-      fontSize: theme.fontSizes.sm,
-      fontWeight: 500,
-
-      "&:hover": {
-        backgroundColor:
-          theme.colorScheme === "dark"
-            ? theme.colors.dark[6]
-            : theme.colors.gray[0],
-      },
-
-      [theme.fn.smallerThan("md")]: {
-        borderRadius: 0,
-        padding: theme.spacing.md,
-      },
-    },
-
     linkActive: {
       "&, &:hover": {
         backgroundColor: theme.fn.variant({
           variant: "light",
           color: theme.primaryColor,
         }).background,
-        color: theme.fn.variant({ variant: "light", color: theme.primaryColor })
-          .color,
+        color: theme.fn.variant({
+          variant: "light",
+          color: theme.primaryColor,
+        }).color,
       },
     },
     desktopNav: {

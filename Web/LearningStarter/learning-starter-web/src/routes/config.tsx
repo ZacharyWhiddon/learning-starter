@@ -1,4 +1,3 @@
-import React from "react";
 import { Route, Routes as Switch, Navigate } from "react-router-dom";
 import { LandingPage } from "../pages/landing-page/landing-page";
 import { NotFoundPage } from "../pages/not-found";

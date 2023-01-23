@@ -1,12 +1,15 @@
-import "./login-page.css";
-import axios from "axios";
-import React from "react";
 import { ApiResponse } from "../../constants/types";
 import { useAsyncFn } from "react-use";
 import { PageWrapper } from "../../components/page-wrapper/page-wrapper";
-import { loginUser } from "../../authentication/authentication-services";
 import { FormErrors, useForm } from "@mantine/form";
-import { Button, Input, Text } from "@mantine/core";
+import {
+  Alert,
+  Button,
+  Container,
+  createStyles,
+  Input,
+  Text,
+} from "@mantine/core";
 import api from "../../config/axios";
 import { showNotification } from "@mantine/notifications";
 
@@ -22,7 +25,13 @@ type LoginResponse = ApiResponse<boolean>;
 //This is a *fairly* basic form
 //The css used in here is a good example of how flexbox works in css
 //For more info on flexbox: https://css-tricks.com/snippets/css/a-guide-to-flexbox/
-export const LoginPage = () => {
+export const LoginPage = ({
+  fetchCurrentUser,
+}: {
+  fetchCurrentUser: () => void;
+}) => {
+  const { classes } = useStyles();
+
   const form = useForm<LoginRequest>({
     initialValues: {
       userName: "",
@@ -55,40 +64,61 @@ export const LoginPage = () => {
 
     if (response.data.data) {
       showNotification({ message: "Successfully Logged In!", color: "green" });
-      loginUser();
+      fetchCurrentUser();
     }
   }, []);
 
   return (
     <PageWrapper>
-      <div className="flex-box-centered-content-login-page">
-        <div className="login-form">
+      <Container>
+        <Container px={0}>
+          {form.errors[""] && (
+            <Alert className={classes.generalErrors} color="red">
+              <Text>{form.errors[""]}</Text>
+            </Alert>
+          )}
           <form onSubmit={form.onSubmit(submitLogin)}>
-            <div>
-              <div>
-                <div className="field-label">
-                  <label htmlFor="userName">UserName</label>
-                </div>
+            <Container px={0}>
+              <Container className={classes.formField} px={0}>
+                <Container px={0}>
+                  <label htmlFor="userName">Username</label>
+                </Container>
                 <Input {...form.getInputProps("userName")} />
                 <Text c="red">{form.errors["userName"]}</Text>
-              </div>
-              <div>
-                <div className="field-label">
+              </Container>
+              <Container className={classes.formField} px={0}>
+                <Container px={0}>
                   <label htmlFor="password">Password</label>
-                </div>
+                </Container>
                 <Input type="password" {...form.getInputProps("password")} />
                 <Text c="red">{form.errors["password"]}</Text>
-              </div>
-              <Text c="red">{form.errors[""]}</Text>
-              <div className="button-container-login-page">
-                <Button className="login-button" type="submit">
+              </Container>
+
+              <Container px={0}>
+                <Button className={classes.loginButton} type="submit">
                   Login
                 </Button>
-              </div>
-            </div>
+              </Container>
+            </Container>
           </form>
-        </div>
-      </div>
+        </Container>
+      </Container>
     </PageWrapper>
   );
 };
+
+const useStyles = createStyles(() => {
+  return {
+    generalErrors: {
+      marginBottom: "8px",
+    },
+
+    loginButton: {
+      marginTop: "8px",
+    },
+
+    formField: {
+      marginBottom: "8px",
+    },
+  };
+});

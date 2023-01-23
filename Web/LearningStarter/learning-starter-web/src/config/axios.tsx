@@ -1,23 +1,19 @@
 import { showNotification } from "@mantine/notifications";
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 import { ApiResponse } from "../constants/types";
-import { Env } from "./env-vars";
+import { EnvVars } from "./env-vars";
 
 const axiosInstance = axios.create({
-  baseURL: Env.apiBaseUrl,
+  baseURL: EnvVars.apiBaseUrl,
 });
 
 const errorHandlers = {
   "400": (response) => {
-    showNotification({
-      title: "Bad Request",
-      message: "u messed up",
-      color: "red",
-    });
-    console.log("Bad Request.");
+    console.log("Bad Request. Check your validation for possible errors");
     return Promise.resolve(response);
   },
-  "401": (response) => {
+  "401": () => {
+    console.log("Unauthenticated. Make sure you are signed in.");
     return Promise.resolve({
       data: null,
       hasErrors: true,
@@ -29,16 +25,23 @@ const errorHandlers = {
       ],
     } as ApiResponse<any>);
   },
-  "403": (response) => {
+  "403": () => {
     showNotification({
-      title: "Unauthorized",
       message: "You are not authorized to perform this action",
       color: "red",
     });
   },
+  "404": (response) => {
+    console.log(
+      "Endpoint Not Found. Check the route you are hitting on your front end matches the route on the backend."
+    );
+    return Promise.resolve(response);
+  },
   "500": (response) => {
+    console.log(
+      "Server Error. Check your backend for null reference exceptions or similar errors."
+    );
     showNotification({
-      title: "Error",
       message: "We've encountered a problem.",
       color: "red",
     });
@@ -59,7 +62,7 @@ export async function handleResponseError(error: AxiosError) {
   }
 }
 
-const baseUrl = Env.apiBaseUrl;
+const baseUrl = EnvVars.apiBaseUrl;
 
 axiosInstance.interceptors.response.use((x: any) => x, handleResponseError);
 
@@ -80,11 +83,11 @@ function put<T>(route: string, data: any) {
 
 function remove<T>(route: string) {
   var url = baseUrl + route;
-  return axiosInstance.delete<T>(route);
+  return axiosInstance.delete<T>(url);
 }
 
 type Api = {
-  post<T>(route: string, data: any): Promise<AxiosResponse<T>>;
+  post<T>(route: string, data?: any): Promise<AxiosResponse<T>>;
   get<T>(url: string): Promise<AxiosResponse<T>>;
   delete<T>(route: string): Promise<AxiosResponse<T>>;
   put<T>(route: string, data: any): Promise<AxiosResponse<T>>;

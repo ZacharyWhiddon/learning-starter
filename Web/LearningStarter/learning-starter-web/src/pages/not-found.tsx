@@ -1,5 +1,4 @@
 import { Header } from "@mantine/core";
-import React from "react";
 
 //It's another page!
 export const NotFoundPage = () => {
