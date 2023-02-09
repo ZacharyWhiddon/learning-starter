@@ -1,22 +1,48 @@
-import React from "react";
+import { Container, createStyles, Divider, Flex, Text } from "@mantine/core";
 import { useUser } from "../../authentication/use-auth";
-import { Header, Container, Divider } from "semantic-ui-react";
-import "./user-page.css";
 
 export const UserPage = () => {
   const user = useUser();
+  const { classes } = useStyles();
   return (
-    <div className="user-page-container">
-      <div>
-        <Header>User Information</Header>
-        <Container textAlign="left">
-          <Header size="small">First Name</Header>
-          <p>{user.firstName}</p>
+    <Container>
+      <Container>
+        <Text size="lg" align="center">
+          User Information
+        </Text>
+        <Container className={classes.textAlignLeft}>
+          <Flex direction="row">
+            <Text size="md" className={classes.labelText}>
+              First Name:
+            </Text>
+            <Text size="md">{user.firstName}</Text>
+          </Flex>
           <Divider />
-          <Header size="small">Last Name</Header>
-          <p>{user.lastName}</p>
+          <Flex direction="row">
+            <Text size="md" className={classes.labelText}>
+              Last Name:
+            </Text>
+            <Text size="md">{user.lastName}</Text>
+          </Flex>
         </Container>
-      </div>
-    </div>
+      </Container>
+    </Container>
   );
 };
+
+const useStyles = createStyles(() => {
+  return {
+    textAlignLeft: {
+      textAlign: "left",
+    },
+
+    labelText: {
+      marginRight: "10px",
+    },
+
+    userPageContainer: {
+      display: "flex",
+      justifyContent: "center",
+    },
+  };
+});

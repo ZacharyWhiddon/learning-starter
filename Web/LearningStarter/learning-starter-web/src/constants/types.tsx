@@ -2,11 +2,11 @@
 //You probably wont need this for the scope of this class :)
 export type ApiResponse<T> = {
   data: T;
-  errors: Error[];
+  errors: ApiError[];
   hasErrors: boolean;
 };
 
-export type Error = {
+export type ApiError = {
   property: string;
   message: string;
 };

@@ -1,17 +1,14 @@
-import axios from "axios";
-import React, { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 import { useAsyncRetry, useAsyncFn } from "react-use";
-import { Dimmer, Loader } from "semantic-ui-react";
 import { ApiResponse } from "../constants/types";
-import { useSubscription } from "../hooks/use-subscription";
-import { useProduce } from "../hooks/use-produce";
-import { Error } from "../constants/types";
+import { ApiError } from "../constants/types";
 import { LoginPage } from "../pages/login-page/login-page";
 import { UserDto } from "../constants/types";
 import { StatusCodes } from "../constants/status-codes";
+import { Loader } from "@mantine/core";
+import api from "../config/axios";
 
 const currentUser = "currentUser";
-const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 //functions for setting session storage
 const setUserItem = (user: UserDto) => {
@@ -24,31 +21,30 @@ const removeUserItem = () => {
 
 type AuthState = {
   user: UserDto | null;
-  errors: Error[];
-  redirectUrl?: string | null;
+  errors: ApiError[];
+  refetchUser: () => void;
+  logout: () => void;
 };
 
 const INITIAL_STATE: AuthState = {
   user: null,
   errors: [],
-  redirectUrl: null,
+  refetchUser: undefined as any,
+  logout: undefined as any,
 };
 
 export const AuthContext = createContext<AuthState>(INITIAL_STATE);
 
 export const AuthProvider = (props: any) => {
-  const [state, setState] = useProduce<AuthState>(INITIAL_STATE);
+  const [errors, setErrors] = useState<ApiError[]>(INITIAL_STATE.errors);
+  const [user, setUser] = useState<UserDto | null>(INITIAL_STATE.user);
 
   //This is the main function for getting the user information from the database.
-  //This function gets called on every "notify("user-login") in order to fetfch the user data."
+  //This function gets called on every "notify("user-login") in order to refetch the user data."
   const fetchCurrentUser = useAsyncRetry(async () => {
-    setState((draft) => {
-      draft.errors = [];
-    });
+    setErrors([]);
 
-    const response = await axios.get<GetUserResponse>(
-      `${baseUrl}/api/get-current-user`
-    );
+    const response = await api.get<GetUserResponse>(`/api/get-current-user`);
 
     if (response.data.hasErrors) {
       response.data.errors.forEach((err) => {
@@ -58,23 +54,19 @@ export const AuthProvider = (props: any) => {
     }
 
     //Updating the state of the context to have the user data as well as any errors.
-    setState((draft) => {
-      draft.user = response.data.data;
-      draft.errors = response.data.errors;
-    });
+    setUser(response.data.data);
+    setErrors(response.data.errors);
 
     //Setting the session storage item of the user.
     setUserItem(response.data.data);
-  }, [setState]);
+  }, []);
 
   //Same deal as login.  This function is used to call the logout endpoint
   const [, logoutUser] = useAsyncFn(async () => {
-    setState((draft) => {
-      draft.errors = [];
-    });
+    setErrors([]);
 
     //Setting up axios call
-    const response = await axios.post(`${baseUrl}/api/logout`);
+    const response = await api.post(`/api/logout`);
 
     if (response.status !== StatusCodes.OK) {
       console.log(`Error on logout: ${response.statusText}`);
@@ -85,44 +77,42 @@ export const AuthProvider = (props: any) => {
 
     if (response.status === StatusCodes.OK) {
       removeUserItem();
-      setState((draft) => {
-        draft.user = null;
-      });
+      setUser(null);
     }
 
     return response;
   }, []);
 
-  //This listens for any "notify("user-login") and performs the action specified."
-  useSubscription("user-login", () => {
-    fetchCurrentUser.retry();
-  });
-
-  //This listens for any "notify("user-logout") and performs the action specified."
-  useSubscription("user-logout", () => {
-    logoutUser();
-  });
-
   //This returns a Loading screen if the API call takes a long time to get user info
   if (fetchCurrentUser.loading) {
-    return (
-      <Dimmer active inverted>
-        <Loader indeterminate />
-      </Dimmer>
-    );
+    return <Loader />;
   }
 
   //Brings unauthenticated users to the login page.
   //This can be made to bring them to a different part of the app eventually
-  if (!state.user && !fetchCurrentUser.loading) {
-    return <LoginPage />;
+  if (!user && !fetchCurrentUser.loading) {
+    return <LoginPage fetchCurrentUser={fetchCurrentUser.retry} />;
   }
 
   //Once they are logged in and not loading, it brings them to the app.
-  return <AuthContext.Provider value={state} {...props} />;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        errors,
+        refetchUser: fetchCurrentUser.retry,
+        logout: logoutUser,
+      }}
+      {...props}
+    />
+  );
 };
 
-type GetUserResponse = ApiResponse<UserDto>;
+export type GetUserResponse = ApiResponse<UserDto>;
+
+export function useAuth(): AuthState {
+  return useContext(AuthContext);
+}
 
 //This function is available anywhere wrapped inside of the <AuthProvider>.  See Config.tsx for example.
 export function useUser(): UserDto {

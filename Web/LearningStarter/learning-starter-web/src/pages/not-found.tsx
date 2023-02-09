@@ -1,7 +1,6 @@
-import React from "react";
-import { Header } from "semantic-ui-react";
+import { Header } from "@mantine/core";
 
 //It's another page!
 export const NotFoundPage = () => {
-  return <Header>Page Not Found</Header>;
+  return <Header height={60}>Page Not Found</Header>;
 };
