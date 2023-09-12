@@ -15,9 +15,21 @@ export type AnyObject = {
   [index: string]: any;
 };
 
+
 export type UserDto = {
   id: number;
   firstName: string;
   lastName: string;
   userName: string;
 };
+
+export type ProductGetDto = {
+  id: number;
+  name: string;
+  description: string;
+}
+
+export type ProductCreateDto = {
+  name: string;
+  description: string;
+}

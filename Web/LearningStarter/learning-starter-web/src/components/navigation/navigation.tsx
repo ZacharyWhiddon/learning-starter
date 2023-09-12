@@ -65,6 +65,35 @@ const navigation: NavigationItem[] = [
       to: routes.user,
     },
   },
+  {
+    text: "New Page",
+    hide: false,
+    nav: {
+      to: routes.testPage
+    }
+  },
+  {
+    text: "Products",
+    hide: false,
+    children: [
+      {
+        text: "Listing",
+        hide: false,
+        nav: {
+          to: routes.productListing
+        }
+      },
+      {
+        text: "Create",
+        hide: false,
+        nav: {
+          to: routes.productCreate
+        }
+      },
+   
+    ]
+  },
+  
 ];
 
 const DesktopNavigation = () => {

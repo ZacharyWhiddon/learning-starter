@@ -3,4 +3,8 @@ export const routes = {
   root: `/`,
   home: `/home`,
   user: `/user`,
+  testPage: `/test-page`,
+  productCreate: `/product-create`,
+  productListing: `/products`,
+  productUpdate: `/products/:id`
 };

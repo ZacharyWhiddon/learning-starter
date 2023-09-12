@@ -5,6 +5,10 @@ import { useUser } from "../authentication/use-auth";
 import { UserPage } from "../pages/user-page/user-page";
 import { PageWrapper } from "../components/page-wrapper/page-wrapper";
 import { routes } from ".";
+import { TestPage } from "../pages/test-page/test-page";
+import { ProductCreate } from "../pages/product-create/product-create";
+import { ProductListing } from "../pages/product-listing/product-listing";
+import { ProductUpdate } from "../pages/product-update/product-update";
 
 //This is where you will tell React Router what to render when the path matches the route specified.
 export const Routes = () => {
@@ -22,6 +26,10 @@ export const Routes = () => {
           {/* Going to route "localhost:5001/" will go to homepage */}
           <Route path={routes.root} element={<Navigate to={routes.home} />} />
 
+          <Route path={routes.testPage} element={<TestPage />} />
+          <Route path={routes.productListing} element={<ProductListing />} />
+          <Route path={routes.productCreate} element={<ProductCreate />} />
+          <Route path={routes.productUpdate} element={<ProductUpdate />} />
           {/* This should always come last.  
             If the path has no match, show page not found */}
           <Route path="*" element={<NotFoundPage />} />
